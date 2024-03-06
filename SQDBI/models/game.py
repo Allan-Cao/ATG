@@ -6,8 +6,8 @@ class Game(Base):
     __tablename__ = 'games'
 
     id = Column(String(255), primary_key=True) # Complete game id containing region and game id (e.g. EUW1_1234567890)
-    game_id = Column(BigInteger)
-    platform_id = Column(String(50))
+    game_id = Column(BigInteger) # Riot's game id
+    platform_id = Column(String(50)) # e.g. EUW1
     
     game_creation = Column(DateTime)
     game_start = Column(DateTime)
