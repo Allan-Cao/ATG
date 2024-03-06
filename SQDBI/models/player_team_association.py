@@ -9,8 +9,6 @@ class PlayerTeamAssociation(Base):
     player_id = Column(Integer, ForeignKey('players.id'))
     team_id = Column(Integer, ForeignKey('teams.id'))
     position = Column(String(10))
-    start_date = Column(DateTime)
-    end_date = Column(DateTime)
 
     player = relationship('Player', back_populates='team_associations')
     team = relationship('Team', back_populates='player_associations')
