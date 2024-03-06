@@ -12,6 +12,7 @@ class Account(Base):
     account_tagline = Column(String(255))
     region = Column(String(50))
     last_update = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    latest_game = Column(DateTime, nullable=True)
 
     player_id = Column(Integer, ForeignKey('players.id'))
     player = relationship('Player', back_populates='accounts')
@@ -20,3 +21,5 @@ class Account(Base):
 
     def __repr__(self):
         return f"<Account(id='{self.id}', {self.account_name}#{self.account_tagline}, region='{self.region}')>"
+    def __str__(self):
+        return f"{self.account_name}#{self.account_tagline}"
