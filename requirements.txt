@@ -5,3 +5,4 @@ cassiopeia
 sqlalchemy
 pangres
 pymysql
+alembic
