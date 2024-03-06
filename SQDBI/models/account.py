@@ -1,25 +1,37 @@
+from typing import List, Optional
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
 from datetime import datetime
+from SQDBI.models.participant import Participant
+
+from SQDBI.models.player import Player
+
 
 class Account(Base):
-    __tablename__ = 'accounts'
+    __tablename__ = "accounts"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    puuid = Column(String(255), unique=True)
-    account_name = Column(String(255))
-    account_tagline = Column(String(255))
-    region = Column(String(50))
-    last_update = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    latest_game = Column(DateTime, nullable=True)
+    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+    puuid: Mapped[str] = Column(String(255), unique=True)
+    account_name: Mapped[str] = Column(String(255))
+    account_tagline: Mapped[str] = Column(String(255))
+    region: Mapped[str] = Column(String(50))
+    last_update: Mapped[datetime] = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+    latest_game: Mapped[Optional[datetime]] = Column(DateTime, nullable=True)
 
-    player_id = Column(Integer, ForeignKey('players.id'))
-    player = relationship('Player', back_populates='accounts')
+    player_id: Mapped[Optional[int]] = Column(Integer, ForeignKey("players.id"))
 
-    games = relationship('Participant', back_populates='account')
+    player: Mapped[Optional["Player"]] = relationship(
+        "Player", back_populates="accounts"
+    )
+    games: Mapped[List["Participant"]] = relationship(
+        "Participant", back_populates="account"
+    )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Account(id='{self.id}', {self.account_name}#{self.account_tagline}, region='{self.region}')>"
-    def __str__(self):
+
+    def __str__(self) -> str:
         return f"{self.account_name}#{self.account_tagline}"
