@@ -4,3 +4,4 @@ numpy
 cassiopeia
 sqlalchemy
 pangres
+pymysql
