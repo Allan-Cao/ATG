@@ -2,6 +2,10 @@
 .env
 client_secret.json
 
+# Dev env
+.vscode
+.venv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
