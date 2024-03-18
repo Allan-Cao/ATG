@@ -4,8 +4,6 @@ from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
 from datetime import datetime
 
-from SQDBI.models.participant import Participant
-
 
 class Game(Base):
     __tablename__ = "games"

@@ -3,8 +3,6 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.account import Account
 from SQDBI.models.base import Base
-from SQDBI.models.participant import Participant
-from SQDBI.models.player_team_association import PlayerTeamAssociation
 
 
 class Player(Base):

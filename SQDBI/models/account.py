@@ -3,9 +3,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
 from datetime import datetime
-from SQDBI.models.participant import Participant
-
-from SQDBI.models.player import Player
 
 
 class Account(Base):

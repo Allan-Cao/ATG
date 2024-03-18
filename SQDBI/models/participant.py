@@ -10,11 +10,7 @@ from sqlalchemy import (
     JSON,
 )
 from sqlalchemy.orm import relationship, Mapped
-from SQDBI.models.account import Account
 from SQDBI.models.base import Base
-from SQDBI.models.game import Game
-from SQDBI.models.player import Player
-
 
 class Participant(Base):
     __tablename__ = "participants"

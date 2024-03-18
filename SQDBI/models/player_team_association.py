@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
-from SQDBI.models.player import Player
-from SQDBI.models.team import Team
+
 
 
 class PlayerTeamAssociation(Base):
