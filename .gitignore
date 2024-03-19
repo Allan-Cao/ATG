@@ -4,6 +4,9 @@ client_secret.json
 alembic.ini
 alembic/versions/*
 
+# Database files
+data/
+
 # Dev env
 .vscode
 .venv
