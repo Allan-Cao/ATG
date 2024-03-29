@@ -9,3 +9,5 @@ alembic
 black
 psycopg2
 ratelimit
+tqdm
+backoff
