@@ -2,6 +2,7 @@ from typing import List, Optional
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
+from sqlalchemy.sql.functions import func
 from datetime import datetime
 
 
@@ -14,7 +15,7 @@ class Account(Base):
     account_tagline: Mapped[str] = Column(String(255))
     region: Mapped[str] = Column(String(50))
     last_update: Mapped[datetime] = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, default=func.now(), onupdate=func.now()
     )
     latest_game: Mapped[Optional[datetime]] = Column(DateTime, nullable=True)
 

@@ -12,6 +12,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
 
+
 class Participant(Base):
     __tablename__ = "participants"
 
