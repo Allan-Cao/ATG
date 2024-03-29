@@ -27,6 +27,7 @@ class Participant(Base):
     team_position: Mapped[str] = Column(String(10))
     lane: Mapped[str] = Column(String(10))
     champion: Mapped[str] = Column(String(255))
+    champion_id: Mapped[int] = Column(Integer)
     kills: Mapped[int] = Column(Integer)
     deaths: Mapped[int] = Column(Integer)
     assists: Mapped[int] = Column(Integer)
@@ -102,7 +103,7 @@ class Participant(Base):
         super().__init__(*args, **kwargs)
         self.kda = self.calculate_kda()
         self.total_cs = self.total_minions_killed + self.total_neutral_minions_killed
-        self.cspm = self.total_cs / (self.game.game_duration / 60)
+        self.cspm = self.total_cs / (self.game_duration / 60)
 
     def calculate_kda(self) -> float:
         if self.deaths > 0:

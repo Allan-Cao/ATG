@@ -13,9 +13,9 @@ class Game(Base):
     )  # Complete game id containing region and game id (e.g. EUW1_1234567890)
     game_id: Mapped[int] = Column(BigInteger)  # Riot's game id
     platform_id: Mapped[str] = Column(String(50))  # e.g. EUW1
-    game_creation: Mapped[datetime] = Column(DateTime)
-    game_start: Mapped[datetime] = Column(DateTime)
-    game_end: Mapped[datetime] = Column(DateTime)
+    game_creation: Mapped[int] = Column(BigInteger)
+    game_start: Mapped[int] = Column(BigInteger)
+    game_end: Mapped[int] = Column(BigInteger)
     game_duration: Mapped[int] = Column(Integer)  # in seconds
 
     game_type: Mapped[str] = Column(String(50))

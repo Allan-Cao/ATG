@@ -16,8 +16,9 @@ class Account(Base):
     region: Mapped[str] = Column(String(50))
     last_update: Mapped[datetime] = Column(
         DateTime, default=func.now(), onupdate=func.now()
-    )
-    latest_game: Mapped[Optional[datetime]] = Column(DateTime, nullable=True)
+    ) # last time we updated the account details
+    latest_game: Mapped[Optional[int]] = Column(Integer, nullable=True)
+    # last time a new game was added to the database (used for match history ingestion)
 
     player_id: Mapped[Optional[int]] = Column(Integer, ForeignKey("players.id"))
 
