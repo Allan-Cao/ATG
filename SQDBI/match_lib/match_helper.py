@@ -1,118 +1,76 @@
-__version__ = 'dev'
-from cassiopeia import Match, Items
-from cassiopeia.core.match import Participant
-from datetime import timedelta
-
-# Constants
-MINIMUM_MATCH_DURATION = timedelta(minutes=10)
-SCHEMA = [
-    "item_0",
-    "item_1",
-    "item_2",
-    "item_3",
-    "item_4",
-    "item_5",
-    "trinket",
-    "patch",
-    "match",
-    "created",
-    "duration",
-    "account",
-    "champion",
-    "lane",
-    "win",
-    "kda",
-    "kills",
-    "deaths",
-    "assists",
-    "total_cs",
-    "cspm",
-    "level",
-    "primary",
-    "secondary",
-    "summoner_d",
-    "summoner_f",
-    "puuid",
-]
+from SQDBI.utils import Side
 
 
-def get_english_name(cass_obj) -> str:
-    """
-    Returns the English name of an item.
-
-    Args:
-        cass_obj (cassiopeia.core.staticdata.staticdataobject.StaticDataObject): A Cassiopeia object.
-    
-    Returns:
-        str: The English name of the object.
-    """
-    return type(cass_obj)(id=cass_obj.id, region="NA", version=cass_obj.version).name
-
-def get_item_names(items: Items) -> list:
-    """
-    Returns a list of item names, replacing None with "-".
-
-    Args:
-        items (list): A list of items.
-
-    Returns:
-        list: A list of item names.
-    """
-    return [get_english_name(item) if item else "-" for item in items]
+def parse_game_version_to_patch(game_version: str) -> str:
+    # We parse the game version to get the patch number
+    # e.g. 14.6.570.6276 -> 14.6
+    return game_version.split(".")[0] + "." + game_version.split(".")[1]
 
 
-def region_string(match: Match) -> str:
-    """
-    Returns a formatted string containing the platform and match ID.
-
-    Args:
-        match (Match): A Match object.
-
-    Returns:
-        str: A formatted string with platform and match ID.
-    """
-    return f"{match.platform.value}_{match.id}"
-
-def account_name(account: list) -> str:
-    return f"{account['account_name']}#{account['tagline']}"
-
-def get_player_stats(player, account, match) -> list:
-    """
-    Returns a list of player stats for a given match.
-
-    Args:
-        player (Participant): A Participant object.
-        match (Match): A Match object.
-
-    Returns:
-        list: A list of player stats.
-    """
-    player_build = get_item_names(player.stats.items)
-    try:
-        team_position = player.team_position.name if player.team_position else ""
-    except:
-        team_position = ""
-    return player_build + [
-        match.patch.majorminor,
-        region_string(match),
-        match.creation.to("US/Pacific").format("YYYY-MM-DD HH:mm:ss"),
-        match.duration.total_seconds(),
-        account_name(account),
-        get_english_name(player.champion),
-        team_position,
-        player.stats.win,
-        player.stats.kda,
-        player.stats.kills,
-        player.stats.deaths,
-        player.stats.assists,
-        (player.stats.neutral_minions_killed + player.stats.total_minions_killed),
-        (player.stats.neutral_minions_killed + player.stats.total_minions_killed)
-        / match.duration.total_seconds()
-        * 60,
-        player.stats.level,
-        get_english_name(player.runes.keystone),
-        list(player.runes)[-1].path.name,  # Need to somehow deal with the non-english possibilty later #TODO haha
-        get_english_name(player.summoner_spell_d),
-        get_english_name(player.summoner_spell_f),
-        player.summoner.puuid,
-    ]
+def parse_participant_dictionary(player: dict) -> dict:
+    # We parse the raw riot data to produce a format that can be used to create a Participant object
+    return {
+        "puuid": player["puuid"],
+        "account_name": player["summonerName"],
+        "account_tagline": player.get("riotIdTagline", ""),
+        "side": Side(player["teamId"]).name,
+        "win": player["win"],
+        "team_position": player["teamPosition"],
+        "lane": player["lane"],
+        "champion": player["championName"],
+        "champion_id": player["championId"],
+        "kills": player["kills"],
+        "deaths": player["deaths"],
+        "assists": player["assists"],
+        "summoner1_id": player["summoner1Id"],
+        "summoner2_id": player["summoner2Id"],
+        "gold_earned": player["goldEarned"],
+        "total_minions_killed": player["totalMinionsKilled"],
+        "total_neutral_minions_killed": player["totalAllyJungleMinionsKilled"]
+        + player["totalEnemyJungleMinionsKilled"],
+        "total_ally_jungle_minions_killed": player["totalAllyJungleMinionsKilled"],
+        "total_enemy_jungle_minions_killed": player["totalEnemyJungleMinionsKilled"],
+        "early_surrender": player["gameEndedInEarlySurrender"],
+        "surrender": player["gameEndedInSurrender"],
+        "first_blood": player["firstBloodKill"],
+        "first_blood_assist": player["firstBloodAssist"],
+        "first_tower": player["firstTowerKill"],
+        "first_tower_assist": player["firstTowerAssist"],
+        "damage_dealt_to_buildings": player["damageDealtToBuildings"],
+        "turret_kills": player["turretKills"],
+        "turrets_lost": player["turretsLost"],
+        "damage_dealt_to_objectives": player["damageDealtToObjectives"],
+        "dragon_kills": player["dragonKills"],
+        "objectives_stolen": player["objectivesStolen"],
+        "longest_time_spent_living": player["longestTimeSpentLiving"],
+        "largest_killing_spree": player["largestKillingSpree"],
+        "total_damage_dealt_champions": player["totalDamageDealtToChampions"],
+        "total_damage_taken": player["totalDamageTaken"],
+        "total_damage_self_mitigated": player["damageSelfMitigated"],
+        "total_damage_shielded_teammates": player["totalDamageShieldedOnTeammates"],
+        "total_heals_teammates": player["totalHealsOnTeammates"],
+        "total_time_crowd_controlled": player["totalTimeCCDealt"],
+        "total_time_spent_dead": player["totalTimeSpentDead"],
+        "vision_score": player["visionScore"],
+        "wards_killed": player["wardsKilled"],
+        "wards_placed": player["wardsPlaced"],
+        "control_wards_placed": player["detectorWardsPlaced"],
+        "item0": player["item0"],
+        "item1": player["item1"],
+        "item2": player["item2"],
+        "item3": player["item3"],
+        "item4": player["item4"],
+        "item5": player["item5"],
+        "item6": player["item6"],
+        "perk_keystone": player["perks"]["styles"][0]["selections"][0]["perk"],
+        "perk_primary_row_1": player["perks"]["styles"][0]["selections"][1]["perk"],
+        "perk_primary_row_2": player["perks"]["styles"][0]["selections"][2]["perk"],
+        "perk_primary_row_3": player["perks"]["styles"][0]["selections"][3]["perk"],
+        "perk_secondary_row_1": player["perks"]["styles"][1]["selections"][0]["perk"],
+        "perk_secondary_row_2": player["perks"]["styles"][1]["selections"][1]["perk"],
+        "perk_primary_style": player["perks"]["styles"][0]["style"],
+        "perk_secondary_style": player["perks"]["styles"][1]["style"],
+        "perk_shard_defense": player["perks"]["statPerks"]["defense"],
+        "perk_shard_flex": player["perks"]["statPerks"]["flex"],
+        "perk_shard_offense": player["perks"]["statPerks"]["offense"],
+    }
