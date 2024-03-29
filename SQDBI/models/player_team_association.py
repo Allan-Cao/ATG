@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
 
 
-
 class PlayerTeamAssociation(Base):
     __tablename__ = "player_team_associations"
 
