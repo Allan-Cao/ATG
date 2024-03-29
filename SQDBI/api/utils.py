@@ -23,3 +23,25 @@ routing = {
     "TW2": "sea",
     "VN2": "sea",
 }
+
+server_string = {
+    "NA": "NA1",
+    "BR": "BR1",
+    "LAN": "LA1",
+    "LAS": "LA2",
+    "KR": "KR",
+    "JP": "JP1",
+    "EUNE": "EUN1",
+    "EUW": "EUW1",
+    "TR": "TR1",
+    "RU": "RU",
+    "OCE": "OC1",
+    "PH2": "PH2",
+    "SG2": "SG2",
+    "TH2": "TH2",
+    "TW2": "TW2",
+    "VN2": "VN2",
+}
+
+def get_match_string(region: str, match_id: str) -> str:
+    return f"{server_string[region]}_{match_id}"

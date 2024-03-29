@@ -1,30 +1,36 @@
 import requests as r
 from .utils import headers, routing
-from ratelimit import limits, RateLimitException, sleep_and_retry
+from ratelimit import limits, RateLimitException
+from backoff import on_predicate, runtime
 
 MAX_CALLS_PER_TEN_SECONDS = 2000
 TEN_SECONDS = 10
 
-
-@sleep_and_retry
+@on_predicate(
+    runtime,
+    predicate=lambda r: r.status_code == 429,
+    value=lambda r: int(r.headers.get("Retry-After")),
+    jitter=None,
+)
 @limits(calls=MAX_CALLS_PER_TEN_SECONDS, period=TEN_SECONDS)
 def get_match_by_id(match_id: str, region: str, api_key: str) -> dict:
     if region not in routing.keys():
         raise ValueError(
             "Invalid region. Expecting NA/EUW/EUNE/KR/BR/LAN/LAS/TR/RU/OCE/JP/SEA"
         )
-    # There are three routing values for account-v1; americas, asia, and europe. You can query for any account in any region. We recommend using the nearest cluster.
     response = r.get(
         f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={api_key}",
         headers=headers,
     )
+    # response.raise_for_status()
+    return response
 
-    response.raise_for_status()
-
-    return response.json()
-
-
-@sleep_and_retry
+@on_predicate(
+    runtime,
+    predicate=lambda r: r.status_code == 429,
+    value=lambda r: int(r.headers.get("Retry-After")),
+    jitter=None,
+)
 @limits(calls=MAX_CALLS_PER_TEN_SECONDS, period=TEN_SECONDS)
 def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> list:
     response = r.get(
@@ -32,7 +38,20 @@ def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> li
         headers=headers,
         params=kwargs,
     )
+    # response.raise_for_status()
+    return response
 
-    response.raise_for_status()
-
-    return response.json()
+def get_match_history(puuid: str, region: str, api_key: str, **kwargs) -> list:
+    start = 0
+    count = 100
+    matches = []
+    while True:
+        match_list = get_available_matches(
+            puuid=puuid, region=region, api_key=api_key, start=start, count=count, **kwargs
+        ).json()
+        if len(match_list) == 0:
+            break
+        matches.extend(match_list)
+        start += count
+    
+    return matches
