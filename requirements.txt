@@ -6,3 +6,6 @@ sqlalchemy
 pangres
 pymysql
 alembic
+black
+psycopg2
+ratelimit
