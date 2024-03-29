@@ -14,7 +14,7 @@ DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
 DB_NAME = os.getenv("DATABASE")
 SSL_CERT_PATH = os.getenv("SSL_CERT_PATH")
 
-DATABASE_URL = f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = f"postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Create the SQLAlchemy engine with SSL configuration
 engine = create_engine(DATABASE_URL, echo=True, connect_args={"ssl": {"ca": SSL_CERT_PATH}})
