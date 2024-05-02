@@ -1,11 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 import os
 from SQDBI.models.base import Base
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Get the database connection details from environment variables
 DB_HOST = os.getenv("DATABASE_HOST")
@@ -32,7 +28,6 @@ Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-# Dependency
 def get_db():
     db = SessionLocal()
     try:
