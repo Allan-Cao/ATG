@@ -1,12 +1,27 @@
 import os
-from dotenv import load_dotenv
+from dotenv import dotenv_values
+
+DEV = True
+
+# Load environment variables
+config = {
+    **dotenv_values(".env.shared"),
+    **os.environ,
+}
+
+if DEV:
+    config.update(dotenv_values(".env.dev"))
+else:
+    config.update(dotenv_values(".env.prod"))
+
+os.environ.update(config)
+
 import cassiopeia as cass
 from cassiopeia import Patch
 from SQDBI.match_lib.ingest_match import upsert_match_history
 from SQDBI.database import get_db
 from SQDBI.models import Player
 
-load_dotenv()
 
 RIOT_API = os.environ.get("RIOT_API")
 cass.set_riot_api_key(RIOT_API)

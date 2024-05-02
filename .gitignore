@@ -1,5 +1,9 @@
 # Secrets
 .env
+.env.dev
+.env.prod
+.env.shared
+
 client_secret.json
 alembic.ini
 alembic/versions/*
