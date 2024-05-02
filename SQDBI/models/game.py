@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import Column, String, Integer, BigInteger, DateTime
 from sqlalchemy.orm import relationship, Mapped
-from SQDBI.models.base import Base
+from SQDBI.models import Base
 from datetime import datetime
 
 
