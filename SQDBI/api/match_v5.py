@@ -13,13 +13,14 @@ TEN_SECONDS = 10
     jitter=None,
 )
 @limits(calls=MAX_CALLS_PER_TEN_SECONDS, period=TEN_SECONDS)
-def get_match_by_id(match_id: str, region: str, api_key: str) -> dict:
+def get_match_by_id(match_id: str, region: str, api_key: str, timeline: bool = False) -> dict:
     if region not in routing.keys():
         raise ValueError(
             "Invalid region. Expecting NA/EUW/EUNE/KR/BR/LAN/LAS/TR/RU/OCE/JP/SEA"
         )
+    is_timeline = "/timeline" if timeline else ""
     response = r.get(
-        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={api_key}",
+        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}?api_key={api_key}",
         headers=headers,
     )
     # response.raise_for_status()
