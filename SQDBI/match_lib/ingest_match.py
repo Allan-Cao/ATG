@@ -13,14 +13,12 @@ def upsert_match_history(player: Player, api_key: str):
         print(
             f"Updating match history for {account.account_name}#{account.account_tagline}"
         )
-        # start_time = (
-        #     SEASON_START.int_timestamp
-        #     if account.latest_game is None
-        #     else account.latest_game
-        # )
-        start_time = SEASON_START.int_timestamp
-        # for now we are always starting from the beginning of the season
-        
+        start_time = (
+            SEASON_START.int_timestamp
+            if account.latest_game is None
+            else account.latest_game
+        )
+
         match_ids = get_match_history(
             account.puuid,
             account.region,
