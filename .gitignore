@@ -1,3 +1,6 @@
+# Debug files
+*.sql
+
 # Secrets
 .env
 .env.dev
