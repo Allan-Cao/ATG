@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     JSON,
 )
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship, Mapped
 from SQDBI.models.base import Base
 
@@ -95,17 +96,23 @@ class Participant(Base):
         "Player", back_populates="solo_queue_games"
     )
 
-    kda: Mapped[float] = None
-    total_cs: Mapped[int] = None
-    cspm: Mapped[float] = None
+    kda: Mapped[float] = mapped_column(nullable=False)
+    total_cs: Mapped[int] = mapped_column(nullable=False)
+    cspm: Mapped[float] = mapped_column(nullable=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kda = self.calculate_kda()
-        self.total_cs = self.total_minions_killed + self.total_neutral_minions_killed
-        self.cspm = self.total_cs / (self.game_duration / 60)
+        self.total_cs = self.calculate_total_cs()
+        self.cspm = self.calculate_cspm()
 
     def calculate_kda(self) -> float:
         if self.deaths > 0:
             return (self.kills + self.assists) / self.deaths
         return self.kills + self.assists
+
+    def calculate_total_cs(self) -> int:
+        return self.total_minions_killed + self.total_neutral_minions_killed
+
+    def calculate_cspm(self) -> float:
+        return self.total_cs / (self.game_duration / 60)
