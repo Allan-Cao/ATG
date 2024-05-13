@@ -19,15 +19,15 @@ os.environ.update(config)
 import cassiopeia as cass
 from cassiopeia import Patch
 from SQDBI.match_lib.ingest_match import upsert_match_history
-from SQDBI.database import get_db
+from SQDBI.database import Session
 from SQDBI.models import Player
 
 
 RIOT_API = os.environ.get("RIOT_API")
 cass.set_riot_api_key(RIOT_API)
 
-db = next(get_db())
-PLAYERS = db.query(Player).all()
+with Session() as session:
+    PLAYERS = session.query(Player).all()
 
 # For now, we do insertion synchronously
 for player in PLAYERS:
