@@ -2,7 +2,7 @@ python-dotenv
 pandas
 numpy
 cassiopeia
-sqlalchemy
+SQLAlchemy>=2.0.30
 pangres
 pymysql
 alembic
