@@ -6,6 +6,7 @@
 .env.dev
 .env.prod
 .env.shared
+.env.admin
 
 client_secret.json
 alembic.ini
