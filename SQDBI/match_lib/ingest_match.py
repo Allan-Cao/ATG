@@ -28,9 +28,12 @@ def upsert_match_history(player: Player, api_key: str):
         final_time = 0
 
         for match_id in tqdm(match_ids):
-            match_end_time = upsert_match(match_id, account.region, api_key)
-            if match_end_time is not None and match_end_time > final_time:
-                final_time = match_end_time
+            try:
+                match_end_time = upsert_match(match_id, account.region, api_key)
+                if match_end_time is not None and match_end_time > final_time:
+                    final_time = match_end_time
+            except:
+                print(f"Failed to process match {match_id}")
         if account.latest_game is None or final_time > account.latest_game:
             account.latest_game = final_time
 
