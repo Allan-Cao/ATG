@@ -1,18 +1,13 @@
 import os
 from dotenv import dotenv_values
 
-DEV = True
-
 # Load environment variables
 config = {
     **dotenv_values(".env.shared"),
     **os.environ,
 }
 
-if DEV:
-    config.update(dotenv_values(".env.dev"))
-else:
-    config.update(dotenv_values(".env.prod"))
+config.update(dotenv_values(".env.admin"))
 
 os.environ.update(config)
 
@@ -28,7 +23,6 @@ cass.set_riot_api_key(RIOT_API)
 
 with Session() as session:
     PLAYERS = session.query(Player).all()
-
-# For now, we do insertion synchronously
-for player in PLAYERS:
-    upsert_match_history(player, RIOT_API)
+    # For now, we do insertion synchronously
+    for player in PLAYERS:
+        upsert_match_history(player, RIOT_API)
