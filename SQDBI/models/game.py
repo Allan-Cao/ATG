@@ -19,21 +19,11 @@ class Game(Base):
     game_duration: Mapped[int] = Column(Integer)  # in seconds
 
     game_type: Mapped[str] = Column(String(50))
-    game_version: Mapped[str] = Column(String(50))
+    game_version_major: Mapped[int] = Column(Integer())
+    game_version_minor: Mapped[int] = Column(Integer())
 
     queue_id: Mapped[int] = Column(Integer)
 
     participants: Mapped[List["Participant"]] = relationship(
         "Participant", back_populates="game"
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.game_version_major_minor = self.extract_major_minor_version()
-
-    def extract_major_minor_version(self):
-        if self.game_version:
-            version_parts = self.game_version.split(".")
-            if len(version_parts) >= 2:
-                return f"{version_parts[0]}.{version_parts[1]}"
-        return None
