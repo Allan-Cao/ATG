@@ -2,12 +2,12 @@ python-dotenv
 pandas
 numpy
 cassiopeia
-SQLAlchemy>=2.0.30
+SQLAlchemy
 pangres
-pymysql
 alembic
 black
 psycopg2
 ratelimit
 tqdm
 backoff
+gspread
