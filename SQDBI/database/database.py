@@ -4,14 +4,10 @@ import os
 from SQDBI.models.base import Base
 
 # Get the database connection details from environment variables
-DB_HOST = os.getenv("DATABASE_HOST")
-DB_PORT = os.getenv("DATABASE_PORT")
-DB_USERNAME = os.getenv("DATABASE_USERNAME")
-DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
-DB_NAME = os.getenv("DATABASE")
+DB_CONNECTION_STRING = os.getenv("DB_CONNECTION_STRING")
 
 DATABASE_URL = (
-    f"postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    f"postgresql+psycopg2://{DB_CONNECTION_STRING}"
 )
 
 # Create the SQLAlchemy engine
