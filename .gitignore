@@ -5,15 +5,9 @@
 *.crt
 
 # Secrets
-.env
-.env.dev
-.env.prod
-.env.shared
-.env.admin
-
+*.env
 client_secret.json
 alembic.ini
-alembic/versions/*
 
 # Database files
 data/
