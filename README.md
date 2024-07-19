@@ -9,3 +9,11 @@ alembic revision -m "changes"
 alembic upgrade head
 alembic downgrade base
 ```
+
+## FastAPI
+
+** Run the FastAPI server with the following command: **
+```bash
+cd api
+fastapi dev main.py
+```
