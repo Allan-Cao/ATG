@@ -6,8 +6,9 @@ SQLAlchemy
 pangres
 alembic
 black
-psycopg2
+psycopg2-binary
 ratelimit
 tqdm
 backoff
 gspread
+fastapi
