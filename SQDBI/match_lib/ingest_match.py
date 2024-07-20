@@ -3,7 +3,7 @@ from SQDBI.api import get_match_history, get_match_by_id, get_match_string
 from SQDBI.database import Session
 from SQDBI.models import Player, Game, Participant
 from SQDBI.utils import SEASON_START
-from .match_helper import parse_participant_dictionary
+from .match_helper import parse_participant_dictionary, extract_major_minor_version
 from tqdm import tqdm
 
 
@@ -62,6 +62,7 @@ def upsert_match(match_id, region, api_key, force=False):
 
 
 def process_match_metadata(game_data, match_id) -> Game:
+    version_major, version_minor = extract_major_minor_version(game_data["info"]["gameVersion"])
     game = Game(
         id=match_id,
         game_id=game_data["info"]["gameId"],
@@ -71,7 +72,8 @@ def process_match_metadata(game_data, match_id) -> Game:
         game_end=game_data["info"]["gameEndTimestamp"],
         game_duration=game_data["info"]["gameDuration"],
         game_type=game_data["info"]["gameType"],
-        game_version=game_data["info"]["gameVersion"],
+        game_version_major=version_major,
+        game_version_minor=version_minor,
         queue_id=game_data["info"]["queueId"],
     )
     return game
