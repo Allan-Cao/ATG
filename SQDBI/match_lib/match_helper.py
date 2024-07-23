@@ -14,7 +14,7 @@ def parse_participant_dictionary(player: dict) -> dict:
     # We parse the raw riot data to produce a format that can be used to create a Participant object
     return {
         "puuid": player["puuid"],
-        "account_name": player["riotIdGameName"],
+        "account_name": player.get("summonerName"),
         "account_tagline": player["riotIdTagline"],
         "side": Side(player["teamId"]).name,
         "win": player["win"],
