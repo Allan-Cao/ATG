@@ -39,14 +39,12 @@ def upsert_match_history(session: _Session, player: Player, API_KEY: str):
         existing_ids = get_existing_match_ids(session)
         new_match_ids = set(match_ids) - existing_ids
         for match_id in tqdm(new_match_ids):
-            try:
-                match_end_time = upsert_match(
-                    session, match_id, account.region, API_KEY
-                )
-                if match_end_time is not None and match_end_time > final_time:
-                    final_time = match_end_time
-            except:
-                print(f"Failed to process match {match_id}")
+            # try:
+            match_end_time = upsert_match(session, match_id, account.region, API_KEY)
+            if match_end_time is not None and match_end_time > final_time:
+                final_time = match_end_time
+            # except:
+            #     print(f"Failed to process match {match_id}")
         if account.latest_game is None or final_time > account.latest_game:
             account.latest_game = final_time
         session.commit()
