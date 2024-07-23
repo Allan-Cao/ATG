@@ -13,7 +13,7 @@ class Account(Base):
     puuid: Mapped[str] = mapped_column(String(255), unique=True)
     account_name: Mapped[str] = mapped_column(String(255))
     account_tagline: Mapped[str] = mapped_column(String(255))
-    region: Mapped[str] = mapped_column(String(50))
+    region: Mapped[str] = mapped_column(String(50), nullable=True)
     last_update: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
     )  # last time we updated the account details
