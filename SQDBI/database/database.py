@@ -1,14 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
-from SQDBI.models.base import Base
+from SQDBI.models import Base
 
 # Get the database connection details from environment variables
 DB_CONNECTION_STRING = os.getenv("DB_CONNECTION_STRING")
 
-DATABASE_URL = (
-    f"postgresql+psycopg2://{DB_CONNECTION_STRING}"
-)
+DATABASE_URL = f"postgresql+psycopg2://{DB_CONNECTION_STRING}"
 
 # Create the SQLAlchemy engine
 engine = create_engine(DATABASE_URL, pool_recycle=3600)

@@ -62,7 +62,9 @@ def upsert_match(match_id, region, api_key, force=False):
 
 
 def process_match_metadata(game_data, match_id) -> Game:
-    version_major, version_minor = extract_major_minor_version(game_data["info"]["gameVersion"])
+    version_major, version_minor = extract_major_minor_version(
+        game_data["info"]["gameVersion"]
+    )
     game = Game(
         id=match_id,
         game_id=game_data["info"]["gameId"],

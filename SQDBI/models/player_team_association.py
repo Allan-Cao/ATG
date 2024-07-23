@@ -1,15 +1,15 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship, Mapped
-from SQDBI.models.base import Base
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from SQDBI.models import Base
 
 
 class PlayerTeamAssociation(Base):
     __tablename__ = "player_team_associations"
 
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-    player_id: Mapped[int] = Column(Integer, ForeignKey("players.id"))
-    team_id: Mapped[int] = Column(Integer, ForeignKey("teams.id"))
-    position: Mapped[str] = Column(String(10))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.id"))
+    team_id: Mapped[int] = mapped_column(Integer, ForeignKey("teams.id"))
+    position: Mapped[str] = mapped_column(String(10))
 
     player: Mapped["Player"] = relationship(
         "Player", back_populates="team_associations"

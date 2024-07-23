@@ -1,26 +1,26 @@
 from typing import List, Optional
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship, Mapped
-from SQDBI.models.base import Base
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql.functions import func
 from datetime import datetime
+from SQDBI.models import Base
 
 
 class Account(Base):
     __tablename__ = "accounts"
 
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-    puuid: Mapped[str] = Column(String(255), unique=True)
-    account_name: Mapped[str] = Column(String(255))
-    account_tagline: Mapped[str] = Column(String(255))
-    region: Mapped[str] = Column(String(50))
-    last_update: Mapped[datetime] = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    puuid: Mapped[str] = mapped_column(String(255), unique=True)
+    account_name: Mapped[str] = mapped_column(String(255))
+    account_tagline: Mapped[str] = mapped_column(String(255))
+    region: Mapped[str] = mapped_column(String(50))
+    last_update: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
-    ) # last time we updated the account details
-    latest_game: Mapped[Optional[int]] = Column(Integer, nullable=True)
+    )  # last time we updated the account details
+    latest_game: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     # last time a new game was added to the database (used for match history ingestion)
 
-    player_id: Mapped[Optional[int]] = Column(Integer, ForeignKey("players.id"))
+    player_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("players.id"))
 
     player: Mapped[Optional["Player"]] = relationship(
         "Player", back_populates="accounts"

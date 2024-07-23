@@ -1,15 +1,14 @@
 from typing import List, Optional
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship, Mapped
-from SQDBI.models.account import Account
-from SQDBI.models.base import Base
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from SQDBI.models import Account, Base
 
 
 class Player(Base):
     __tablename__ = "players"
 
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = Column(String(255))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255))
 
     accounts: Mapped[Optional[List["Account"]]] = relationship(
         "Account", back_populates="player"

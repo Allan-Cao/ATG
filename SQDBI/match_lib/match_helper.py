@@ -1,13 +1,14 @@
 from typing import Union
 from SQDBI.utils import Side
 
-def extract_major_minor_version(game_version: str) -> Union[int, int]:
+
+def extract_major_minor_version(game_version: str) -> tuple[str, str]:
     version_parts = game_version.split(".")
     if len(version_parts) >= 2:
         return version_parts[0], version_parts[1]
     else:
         raise ValueError("Expecting major/minor patch format")
-            
+
 
 def parse_participant_dictionary(player: dict) -> dict:
     # We parse the raw riot data to produce a format that can be used to create a Participant object
