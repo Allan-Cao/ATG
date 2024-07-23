@@ -23,9 +23,10 @@ def get_match_by_id(
             "Invalid region. Expecting NA/EUW/EUNE/KR/BR/LAN/LAS/TR/RU/OCE/JP/SEA"
         )
     is_timeline = "/timeline" if timeline else ""
+    _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}?api_key={api_key}",
-        headers=headers,
+        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}",
+        headers=_headers,
     )
     # response.raise_for_status()
     return response
@@ -39,9 +40,10 @@ def get_match_by_id(
 )
 @limits(calls=MAX_CALLS_PER_TEN_SECONDS, period=TEN_SECONDS)
 def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> Response:
+    _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?api_key={api_key}",
-        headers=headers,
+        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids",
+        headers=_headers,
         params=kwargs,
     )
     # response.raise_for_status()
