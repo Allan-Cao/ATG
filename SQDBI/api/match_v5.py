@@ -3,6 +3,7 @@ from requests import Response
 from .utils import headers, routing
 from ratelimit import limits, RateLimitException
 from backoff import on_predicate, runtime
+from typing import List
 
 MAX_CALLS_PER_TEN_SECONDS = 2000
 TEN_SECONDS = 10
@@ -50,7 +51,7 @@ def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> Re
     return response
 
 
-def get_match_history(puuid: str, region: str, api_key: str, **kwargs) -> list:
+def get_match_history(puuid: str, region: str, api_key: str, **kwargs) -> List[str]:
     start = 0
     count = 100
     matches = []
