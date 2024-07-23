@@ -1,22 +1,26 @@
 import sys
+import os
 
 sys.path.append("..")
 from dotenv import load_dotenv
 
-load_dotenv("../.env")
+load_dotenv("../.shared.env")
 from sqlalchemy import select, func, desc, and_, case
 from SQDBI.database import Session
 from SQDBI.models import *
+from SQDBI.api import get_account_by_riot_id
+from typing import Annotated, Optional, Union
+from fastapi import Body, FastAPI, HTTPException
+from pydantic import BaseModel
 
-from typing import Optional, Union
-from fastapi import FastAPI, HTTPException
-
+API_KEY = os.environ.get("RIOT_API")
 app = FastAPI()
 
 
-@app.get("/")
-def read_root() -> Union[str, dict]:
-    return {"Hello": "World"}
+class NewAccount(BaseModel):
+    riot_username: str
+    riot_tagline: str
+    player_name: str
 
 
 @app.get("/players/available_players")
@@ -84,3 +88,53 @@ def get_player_stats_by_name(player_name: str) -> list[dict]:
             }
             for row in results
         ]
+
+
+@app.post("/players/new_player/")
+def create_new_player(new_player: Annotated[str, Body()]):
+    with Session() as session:
+        player = session.scalar(select(Player.id).where(Player.name == new_player))
+        if player is not None:
+            raise HTTPException(
+                status_code=400, detail=f"Player with name {new_player} already exists."
+            )
+        p = Player(name=new_player)
+        session.add(p)
+        session.commit()
+    return new_player
+
+
+@app.post("/players/new_account/")
+def associate_new_account(new_account: NewAccount) -> dict:
+    with Session() as session:
+        player_id = session.scalar(
+            select(Player.id).where(Player.name == new_account.player_name)
+        )
+        if player_id is None:
+            raise HTTPException(status_code=400, detail="Unknown player name received")
+        try:
+            new_account_details = get_account_by_riot_id(
+                new_account.riot_username, new_account.riot_tagline, API_KEY
+            )
+        except Exception as e:
+            # Might want to handle 429 exceptions differently.
+            raise HTTPException(status_code=400, detail=str(e))
+        if new_account_details is None:
+            raise HTTPException(
+                status_code=400, detail="Invalid riot account details received"
+            )
+        new_account_obj = Account(
+            puuid=new_account_details["puuid"],
+            account_name=new_account_details.get("gameName"),
+            account_tagline=new_account_details.get("tagLine"),
+            player_id=player_id,
+        )
+        session.add(new_account_obj)
+        session.commit()
+
+    return {
+        "puuid": new_account_obj.puuid,
+        "account_name": new_account_obj.account_name,
+        "account_tagline": new_account_obj.account_tagline,
+        "player_id": player_id,
+    }
