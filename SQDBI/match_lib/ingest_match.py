@@ -1,5 +1,6 @@
 import datetime
 from sqlalchemy.orm import Session as _Session
+from typing import List, Set
 from tqdm import tqdm
 from SQDBI.api import get_match_history, get_match_by_id, get_match_string
 from SQDBI.api.account_v1 import get_account_by_puuid
@@ -35,7 +36,9 @@ def upsert_match_history(session: _Session, player: Player, API_KEY: str):
 
         final_time = 0
 
-        for match_id in tqdm(match_ids):
+        existing_ids = get_existing_match_ids(session)
+        new_match_ids = set(match_ids) - existing_ids
+        for match_id in tqdm(new_match_ids):
             try:
                 match_end_time = upsert_match(
                     session, match_id, account.region, API_KEY
@@ -115,3 +118,7 @@ def update_account_riotid(session: _Session, account: Account, API_KEY: str):
     account.account_name = account_details.get("gameName")
     account.account_tagline = account_details.get("tagLine")
     return account
+
+
+def get_existing_match_ids(session: _Session) -> Set[str]:
+    return set(id for (id,) in session.query(Game.id).all())
