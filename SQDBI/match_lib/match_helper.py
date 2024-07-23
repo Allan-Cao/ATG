@@ -11,11 +11,10 @@ def extract_major_minor_version(game_version: str) -> tuple[str, str]:
 
 
 def parse_participant_dictionary(player: dict) -> dict:
-    print(player)
     # We parse the raw riot data to produce a format that can be used to create a Participant object
     return {
         "puuid": player["puuid"],
-        "account_name": player.get("summonerName"),  # RIOT MOMENT
+        "account_name": player["riotIdGameName"],
         "account_tagline": player["riotIdTagline"],
         "side": Side(player["teamId"]).name,
         "win": player["win"],
