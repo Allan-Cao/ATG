@@ -67,9 +67,8 @@ def upsert_match_history(
         latest_game_set = False
         for match_id in tqdm(new_match_ids):
             try:
-                match_end_time = upsert_match(
-                    session, match_id, account.region, API_KEY
-                )
+                game_data = get_match_by_id(match_id, account.region, API_KEY).json()
+                match_end_time = upsert_match(session, match_id, game_data)
                 if not latest_game_set:
                     account.latest_game = match_end_time
                     latest_game_set = True
@@ -79,9 +78,7 @@ def upsert_match_history(
         session.commit()
 
 
-def upsert_match(
-    session: _Session, match_id: str, region: str, api_key: str, force: bool = False
-):
+def upsert_match(session: _Session, match_id: str, game_data, force: bool = False):
     match = session.query(Game).filter(Game.id == match_id).first()
     # IF we are not forcing an update, we need to check the game doesn't already exist.
     if match is not None and force == False:
@@ -92,7 +89,6 @@ def upsert_match(
         session.query(Game).filter(Game.id == match_id).delete()
         session.commit()
 
-    game_data = get_match_by_id(match_id, region, api_key).json()
     game = process_match_metadata(game_data, match_id)
     session.add(game)
     session.flush()
