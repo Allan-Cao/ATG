@@ -96,15 +96,15 @@ def get_player_stats_by_name(
 
     statement = (
         select(
-            Participant.champion_id.label("Champion"),
-            func.count(Participant.champion_id).label("Games"),
-            func.avg(Participant.kda).label("KDA"),
-            func.sum(case((Participant.win == True, 1), else_=0)).label("Wins"),
+            Participant.champion_id.label("champion"),
+            func.count(Participant.champion_id).label("games"),
+            func.avg(Participant.kda).label("kda"),
+            func.sum(case((Participant.win == True, 1), else_=0)).label("wins"),
         )
         .join(Game, Participant.game_id == Game.id)
         .where(Participant.puuid.in_(player_accounts))
-        .group_by("Champion")
-        .order_by(desc("Games"))
+        .group_by("champion")
+        .order_by(desc("games"))
     )
     if (
         player_request.game_version_major is not None
@@ -127,10 +127,10 @@ def get_player_stats_by_name(
     return {
         "stats": [
             {
-                "Champion": row.Champion,
-                "Games": row.Games,
-                "KDA": row.KDA,
-                "Wins": row.Wins,
+                "champion": row.champion,
+                "games": row.games,
+                "kda": row.kda,
+                "wins": row.wins,
             }
             for row in results
         ],
