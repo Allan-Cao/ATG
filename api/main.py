@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv("../.shared.env")
 
-from sqlalchemy import select, func, desc, and_, case
+from sqlalchemy import Integer, select, func, desc, and_, case
 from sqlalchemy.exc import IntegrityError
 from SQDBI.database import Session
 from SQDBI.models import *
@@ -36,6 +36,9 @@ class PlayerStatRequest(BaseModel):
     )
     game_version_major: Optional[int] = Field(None, description="LoL Season")
     game_version_minor: Optional[int] = Field(None, description="Patch number")
+    before: Optional[int] = Field(
+        None, description="Gets games before-before UNIX timestamp"
+    )
     after: Optional[int] = Field(
         None, description="Gets games after-after UNIX timestamp"
     )
@@ -61,6 +64,19 @@ def get_available_players(db: _Session = Depends(get_db)) -> list:
         return []
     else:
         return [_[0] for _ in rows]
+
+
+@app.get("/players/get_player_accounts/{player_name}")
+def get_player_accounts(
+    player_name: str, db: _Session = Depends(get_db)
+) -> List[Union[None, str]]:
+    accounts = db.execute(
+        select(Account.account_name, Account.account_tagline)
+        .join(Player, Player.id == Account.player_id)
+        .where(Player.name == player_name)
+    )
+
+    return [_.account_name + "#" + _.account_tagline for _ in accounts]
 
 
 @app.get("/players/get_player_team/{player_name}")
@@ -99,29 +115,27 @@ def get_player_stats_by_name(
             Participant.champion_id.label("champion"),
             func.count(Participant.champion_id).label("games"),
             func.avg(Participant.kda).label("kda"),
-            func.sum(case((Participant.win == True, 1), else_=0)).label("wins"),
+            func.sum(Participant.win.cast(Integer)).label("wins"),
         )
         .join(Game, Participant.game_id == Game.id)
         .where(Participant.puuid.in_(player_accounts))
         .group_by("champion")
         .order_by(desc("games"))
     )
-    if (
-        player_request.game_version_major is not None
-        and player_request.game_version_minor is not None
-    ):
+    if player_request.game_version_major is not None:
         statement = statement.where(
-            and_(
-                Game.game_version_major == player_request.game_version_major,
-                Game.game_version_minor == player_request.game_version_minor,
-            )
+            Game.game_version_major == player_request.game_version_major
+        )
+    if player_request.game_version_minor is not None:
+        statement = statement.where(
+            Game.game_version_minor == player_request.game_version_minor
         )
     if player_request.after is not None:
         statement = statement.where(Game.game_start > player_request.after)
+    if player_request.before is not None:
+        statement = statement.where(Game.game_start < player_request.before)
     if player_request.game_type is not None:
         statement = statement.where(Game.game_type == player_request.game_type)
-    if player_request.excludes_games is not None:
-        statemennt = statement.where(Game.id.not_in(player_request.excludes_games))
 
     results = db.execute(statement).all()
     return {
@@ -134,7 +148,6 @@ def get_player_stats_by_name(
             }
             for row in results
         ],
-        "games": [],  # TODO
     }
 
 
