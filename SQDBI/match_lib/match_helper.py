@@ -7,7 +7,7 @@ def extract_major_minor_version(game_version: str) -> tuple[str, str]:
     if len(version_parts) >= 2:
         return version_parts[0], version_parts[1]
     else:
-        raise ValueError("Expecting major/minor patch format")
+        raise ValueError(f"Expecting major/minor patch format received: {game_version}")
 
 
 def parse_participant_dictionary(player: dict) -> dict:
