@@ -1,25 +1,30 @@
 import sys
 import os
 
+from SQDBI.api.account_v1 import get_account_by_puuid
+
 sys.path.append("..")
 from dotenv import load_dotenv
 
 load_dotenv("../.shared.env")
 from sqlalchemy import select, func, desc, and_, case
+from sqlalchemy.exc import IntegrityError
 from SQDBI.database import Session
 from SQDBI.models import *
 from SQDBI.api import get_account_by_riot_id
 from typing import Annotated, Optional, Union
 from fastapi import Body, FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 API_KEY = os.environ.get("RIOT_API")
 app = FastAPI()
 
 
 class NewAccount(BaseModel):
-    riot_username: str
-    riot_tagline: str
+    riot_username: Optional[str] = Field(None, description="Account's riot username")
+    riot_tagline: Optional[str] = Field(None, description="Account's riot tagline")
+    puuid: Optional[str] = Field(None, description="Account's PUUID")
+    region: Optional[str] = Field(None, description="Account's region e.g. NA, EUW")
     player_name: str
 
 
@@ -104,7 +109,7 @@ def create_new_player(name: Annotated[str, Body()]):
     return name
 
 
-@app.post("/players/new_account_by_name/")
+@app.post("/players/new_account/")
 def associate_new_account(new_account: NewAccount) -> dict:
     with Session() as session:
         player_id = session.scalar(
@@ -112,12 +117,23 @@ def associate_new_account(new_account: NewAccount) -> dict:
         )
         if player_id is None:
             raise HTTPException(status_code=400, detail="Unknown player name received")
+        # We default to using the PUUID (since it's more accurate), then try the account/tagline
         try:
-            new_account_details = get_account_by_riot_id(
-                new_account.riot_username, new_account.riot_tagline, API_KEY
-            )
+            if new_account.puuid is not None:
+                new_account_details = get_account_by_puuid(new_account.puuid, API_KEY)
+            elif (
+                new_account.riot_username is not None
+                and new_account.riot_tagline is not None
+            ):
+                new_account_details = get_account_by_riot_id(
+                    new_account.riot_username, new_account.riot_tagline, API_KEY
+                )
+            else:
+                raise ValueError(
+                    "Expecting PUUID or Account/Tagline pair. No values were received."
+                )
         except Exception as e:
-            # Might want to handle 429 exceptions differently.
+            # Might want to handle 429/404 exceptions differently.
             raise HTTPException(status_code=400, detail=str(e))
         if new_account_details is None:
             raise HTTPException(
@@ -129,12 +145,18 @@ def associate_new_account(new_account: NewAccount) -> dict:
             account_tagline=new_account_details.get("tagLine"),
             player_id=player_id,
         )
+        if new_account.region is not None:
+            new_account_obj.region = new_account.region
         session.add(new_account_obj)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+            raise HTTPException(status_code=409, detail="Account already exists")
 
-    return {
-        "puuid": new_account_obj.puuid,
-        "account_name": new_account_obj.account_name,
-        "account_tagline": new_account_obj.account_tagline,
-        "player_id": player_id,
-    }
+        return {
+            "puuid": new_account_obj.puuid,
+            "account_name": new_account_obj.account_name,
+            "account_tagline": new_account_obj.account_tagline,
+            "player_id": player_id,
+        }
