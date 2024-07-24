@@ -1,4 +1,5 @@
 import datetime
+from sqlalchemy import select
 from sqlalchemy.orm import Session as _Session
 from typing import List, Set
 from tqdm import tqdm
@@ -10,14 +11,32 @@ from SQDBI.utils import SEASON_START
 from .match_helper import parse_participant_dictionary, extract_major_minor_version
 
 
+def update_player_accounts(session: _Session, API_KEY: str):
+    accounts_to_update = session.scalars(
+        select(Account).where(
+            Account.last_update < (datetime.datetime.now() - datetime.timedelta(days=7))
+        )
+    )
+    if len(accounts_to_update.all()) == 0:
+        print("All accounts are up to date!")
+        return
+    for account in tqdm(accounts_to_update.all()):
+        account_details = get_account_by_puuid(account.puuid, API_KEY)
+        if account_details is None:
+            print(f"No account details found for PUUID: {account.puuid}")
+            continue
+        account.account_name = account_details.get("gameName")
+        account.account_tagline = account_details.get("tagLine")
+        account.last_update = datetime.datetime.now()
+    try:
+        session.commit()
+    except Exception as e:
+        print(f"Something went wrong updating accounts: {str(e)}")
+        session.rollback()
+
+
 def upsert_match_history(session: _Session, player: Player, API_KEY: str):
     for account in player.accounts or []:
-        if account.last_update < (datetime.datetime.now() - datetime.timedelta(days=7)):
-            try:
-                account = update_account_riotid(session, account, API_KEY)
-            except Exception as e:
-                print(f"Something went wrong updating account details: {str(e)}")
-                session.rollback()
         print(
             f"Updating match history for {account.account_name}#{account.account_tagline}"
         )
@@ -39,12 +58,14 @@ def upsert_match_history(session: _Session, player: Player, API_KEY: str):
         existing_ids = get_existing_match_ids(session)
         new_match_ids = set(match_ids) - existing_ids
         for match_id in tqdm(new_match_ids):
-            # try:
-            match_end_time = upsert_match(session, match_id, account.region, API_KEY)
-            if match_end_time is not None and match_end_time > final_time:
-                final_time = match_end_time
-            # except:
-            #     print(f"Failed to process match {match_id}")
+            try:
+                match_end_time = upsert_match(
+                    session, match_id, account.region, API_KEY
+                )
+                if match_end_time is not None and match_end_time > final_time:
+                    final_time = match_end_time
+            except:
+                print(f"Failed to process match {match_id}")
         if account.latest_game is None or final_time > account.latest_game:
             account.latest_game = final_time
         session.commit()
@@ -105,17 +126,6 @@ def process_match_participants(game, game_data) -> list[Participant]:
         )
         participants.append(p)
     return participants
-
-
-def update_account_riotid(session: _Session, account: Account, API_KEY: str):
-    account = session.merge(account)
-    account_details = get_account_by_puuid(account.puuid, API_KEY)
-    if account_details is None:
-        raise ValueError(f"No account details found for PUUID: {account.puuid}")
-    # Update the account object
-    account.account_name = account_details.get("gameName")
-    account.account_tagline = account_details.get("tagLine")
-    return account
 
 
 def get_existing_match_ids(session: _Session) -> Set[str]:
