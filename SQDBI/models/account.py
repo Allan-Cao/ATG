@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import BigInteger, Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql.functions import func
 from datetime import datetime
@@ -17,7 +17,7 @@ class Account(Base):
     last_update: Mapped[datetime] = mapped_column(
         DateTime, default=func.now()
     )  # last time we updated the account details
-    latest_game: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    latest_game: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     # last time a new game was added to the database (used for match history ingestion)
 
     player_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("players.id"))
