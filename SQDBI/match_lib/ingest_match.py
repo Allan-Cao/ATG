@@ -51,12 +51,16 @@ def upsert_match_history(session: _Session, player: Player, API_KEY: str):
             account.region,
             API_KEY,
             startTime=start_time,
+            queue=420,
         )
 
         final_time = 0
 
         existing_ids = get_existing_match_ids(session)
         new_match_ids = set(match_ids) - existing_ids
+        if len(new_match_ids) == 0:
+            print("All up to date!")
+            continue
         for match_id in tqdm(new_match_ids):
             try:
                 match_end_time = upsert_match(
