@@ -91,20 +91,20 @@ def get_player_stats_by_name(player_name: str) -> list[dict]:
 
 
 @app.post("/players/new_player/")
-def create_new_player(new_player: Annotated[str, Body()]):
+def create_new_player(name: Annotated[str, Body()]):
     with Session() as session:
-        player = session.scalar(select(Player.id).where(Player.name == new_player))
+        player = session.scalar(select(Player.id).where(Player.name == name))
         if player is not None:
             raise HTTPException(
-                status_code=400, detail=f"Player with name {new_player} already exists."
+                status_code=409, detail=f"Player with {name} already exists."
             )
-        p = Player(name=new_player)
+        p = Player(name=name)
         session.add(p)
         session.commit()
-    return new_player
+    return name
 
 
-@app.post("/players/new_account/")
+@app.post("/players/new_account_by_name/")
 def associate_new_account(new_account: NewAccount) -> dict:
     with Session() as session:
         player_id = session.scalar(
