@@ -15,7 +15,7 @@ class Account(Base):
     account_tagline: Mapped[str] = mapped_column(String(255))
     region: Mapped[str] = mapped_column(String(50), nullable=True)
     last_update: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now()
+        DateTime, default=func.now()
     )  # last time we updated the account details
     latest_game: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     # last time a new game was added to the database (used for match history ingestion)
