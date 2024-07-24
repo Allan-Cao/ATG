@@ -35,15 +35,12 @@ def update_player_accounts(session: _Session, API_KEY: str):
         session.rollback()
 
 
-def upsert_match_history(session: _Session, player: Player, API_KEY: str):
+def upsert_match_history(
+    session: _Session, player: Player, API_KEY: str, start_time: int = SEASON_START
+):
     for account in player.accounts or []:
         print(
             f"Updating match history for {account.account_name}#{account.account_tagline}"
-        )
-        start_time = (
-            SEASON_START.int_timestamp
-            if account.latest_game is None
-            else account.latest_game
         )
 
         match_ids = get_match_history(
@@ -53,25 +50,23 @@ def upsert_match_history(session: _Session, player: Player, API_KEY: str):
             startTime=start_time,
             queue=420,
         )
-
-        final_time = 0
-
         existing_ids = get_existing_match_ids(session)
         new_match_ids = set(match_ids) - existing_ids
         if len(new_match_ids) == 0:
             print("All up to date!")
             continue
+
+        latest_game_set = False
         for match_id in tqdm(new_match_ids):
             try:
                 match_end_time = upsert_match(
                     session, match_id, account.region, API_KEY
                 )
-                if match_end_time is not None and match_end_time > final_time:
-                    final_time = match_end_time
+                if not latest_game_set:
+                    account.latest_game = match_end_time
+                    latest_game_set = True
             except:
                 print(f"Failed to process match {match_id}")
-        if account.latest_game is None or final_time > account.latest_game:
-            account.latest_game = final_time
         session.commit()
 
 
