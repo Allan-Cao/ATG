@@ -8,7 +8,11 @@ from SQDBI.api.account_v1 import get_account_by_puuid
 from SQDBI.database import Session
 from SQDBI.models import Player, Game, Participant, Account
 from SQDBI.utils import SEASON_START
-from .match_helper import parse_participant_dictionary, extract_major_minor_version
+from .match_helper import (
+    parse_participant_dictionary,
+    extract_major_minor_version,
+    process_match_metadata,
+)
 
 
 def update_player_accounts(session: _Session, API_KEY: str):
@@ -36,7 +40,11 @@ def update_player_accounts(session: _Session, API_KEY: str):
 
 
 def upsert_match_history(
-    session: _Session, player: Player, API_KEY: str, start_time: int = SEASON_START
+    session: _Session,
+    existing_ids: Set,
+    player: Player,
+    API_KEY: str,
+    start_time: int = SEASON_START,
 ):
     for account in player.accounts or []:
         print(
@@ -50,7 +58,7 @@ def upsert_match_history(
             startTime=start_time,
             queue=420,
         )
-        existing_ids = get_existing_match_ids(session)
+
         new_match_ids = set(match_ids) - existing_ids
         if len(new_match_ids) == 0:
             print("All up to date!")
@@ -65,6 +73,7 @@ def upsert_match_history(
                 if not latest_game_set:
                     account.latest_game = match_end_time
                     latest_game_set = True
+                existing_ids.add(match_id)
             except:
                 print(f"Failed to process match {match_id}")
         session.commit()
@@ -94,26 +103,6 @@ def upsert_match(
     return game_data["info"]["gameEndTimestamp"]
 
 
-def process_match_metadata(game_data, match_id) -> Game:
-    version_major, version_minor = extract_major_minor_version(
-        game_data["info"]["gameVersion"]
-    )
-    game = Game(
-        id=match_id,
-        game_id=game_data["info"]["gameId"],
-        platform_id=game_data["info"]["platformId"],
-        game_creation=game_data["info"]["gameCreation"],
-        game_start=game_data["info"]["gameStartTimestamp"],
-        game_end=game_data["info"]["gameEndTimestamp"],
-        game_duration=game_data["info"]["gameDuration"],
-        game_type=game_data["info"]["gameType"],
-        game_version_major=version_major,
-        game_version_minor=version_minor,
-        queue_id=game_data["info"]["queueId"],
-    )
-    return game
-
-
 def process_match_participants(game, game_data) -> list[Participant]:
     participants = []
     for participant in game_data["info"]["participants"]:
@@ -125,7 +114,3 @@ def process_match_participants(game, game_data) -> list[Participant]:
         )
         participants.append(p)
     return participants
-
-
-def get_existing_match_ids(session: _Session) -> Set[str]:
-    return set(id for (id,) in session.query(Game.id).all())

@@ -1,5 +1,6 @@
 from typing import Union
 from SQDBI.utils import Side
+from SQDBI.models import Game
 
 
 def extract_major_minor_version(game_version: str) -> tuple[str, str]:
@@ -77,3 +78,23 @@ def parse_participant_dictionary(player: dict) -> dict:
         "perk_shard_flex": player["perks"]["statPerks"]["flex"],
         "perk_shard_offense": player["perks"]["statPerks"]["offense"],
     }
+
+
+def process_match_metadata(game_data, match_id) -> Game:
+    version_major, version_minor = extract_major_minor_version(
+        game_data["info"]["gameVersion"]
+    )
+    game = Game(
+        id=match_id,
+        game_id=game_data["info"]["gameId"],
+        platform_id=game_data["info"]["platformId"],
+        game_creation=game_data["info"]["gameCreation"],
+        game_start=game_data["info"]["gameStartTimestamp"],
+        game_end=game_data["info"]["gameEndTimestamp"],
+        game_duration=game_data["info"]["gameDuration"],
+        game_type=game_data["info"]["gameType"],
+        game_version_major=version_major,
+        game_version_minor=version_minor,
+        queue_id=game_data["info"]["queueId"],
+    )
+    return game
