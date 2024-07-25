@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 from SQDBI.utils import Side
 from SQDBI.models import Game
 
@@ -15,8 +15,8 @@ def parse_participant_dictionary(player: dict) -> dict:
     # We parse the raw riot data to produce a format that can be used to create a Participant object
     return {
         "puuid": player["puuid"],
-        "account_name": player.get("summonerName"),
-        "account_tagline": player["riotIdTagline"],
+        "account_name": player.get("riotIdGameName"),
+        "account_tagline": player.get("riotIdTagline"),
         "side": Side(player["teamId"]).name,
         "win": player["win"],
         "team_position": player["teamPosition"],
@@ -26,8 +26,8 @@ def parse_participant_dictionary(player: dict) -> dict:
         "kills": player["kills"],
         "deaths": player["deaths"],
         "assists": player["assists"],
-        "summoner1_id": player["summoner1Id"],
-        "summoner2_id": player["summoner2Id"],
+        "summoner1_id": player.get("summoner1Id"),  # Missing from GRID
+        "summoner2_id": player.get("summoner2Id"),
         "gold_earned": player["goldEarned"],
         "total_minions_killed": player["totalMinionsKilled"],
         "total_neutral_minions_killed": player["totalAllyJungleMinionsKilled"]
@@ -80,21 +80,21 @@ def parse_participant_dictionary(player: dict) -> dict:
     }
 
 
-def process_match_metadata(game_data, match_id) -> Game:
-    version_major, version_minor = extract_major_minor_version(
-        game_data["info"]["gameVersion"]
-    )
+def process_match_metadata(
+    game_data, match_id, game_type: Optional[str] = None
+) -> Game:
+    version_major, version_minor = extract_major_minor_version(game_data["gameVersion"])
     game = Game(
         id=match_id,
-        game_id=game_data["info"]["gameId"],
-        platform_id=game_data["info"]["platformId"],
-        game_creation=game_data["info"]["gameCreation"],
-        game_start=game_data["info"]["gameStartTimestamp"],
-        game_end=game_data["info"]["gameEndTimestamp"],
-        game_duration=game_data["info"]["gameDuration"],
-        game_type=game_data["info"]["gameType"],
+        game_id=game_data["gameId"],
+        platform_id=game_data["platformId"],
+        game_creation=game_data["gameCreation"],
+        game_start=game_data["gameStartTimestamp"],
+        game_end=game_data["gameEndTimestamp"],
+        game_duration=game_data["gameDuration"],
+        game_type=game_type or game_data["gameType"],
         game_version_major=version_major,
         game_version_minor=version_minor,
-        queue_id=game_data["info"]["queueId"],
+        queue_id=game_data["queueId"],
     )
     return game
