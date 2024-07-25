@@ -57,13 +57,8 @@ def get_db():
 
 
 @app.get("/players/available_players")
-def get_available_players(db: _Session = Depends(get_db)) -> list:
-    statement = select(Player.name)
-    rows = db.execute(statement).all()
-    if len(rows) == 0:
-        return []
-    else:
-        return [_[0] for _ in rows]
+def get_available_players(db: _Session = Depends(get_db)) -> List[str]:
+    return list(db.scalars(select(Player.name)))
 
 
 @app.get("/players/get_player_accounts/{player_name}")
@@ -77,6 +72,11 @@ def get_player_accounts(
     )
 
     return [_.account_name + "#" + _.account_tagline for _ in accounts]
+
+
+@app.get("/players/available_puuids")
+def get_available_puuids(db: _Session = Depends(get_db)) -> List[str]:
+    return list(db.scalars(select(Account.puuid)))
 
 
 @app.get("/players/get_player_team/{player_name}")
