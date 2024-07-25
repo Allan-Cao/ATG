@@ -72,23 +72,23 @@ def upsert_match_history(
 
         latest_game_set = False
         for match_id in tqdm(new_match_ids):
-            # try:
-            game_data = get_match_by_id(match_id, account.region, API_KEY).json()
-            game_data_meta = game_data["info"]
-            game_data_participants = game_data["info"]["participants"]
-            match_end_time = upsert_match(
-                session,
-                match_id,
-                game_data_meta,
-                game_data_participants,
-                game_type="SOLOQUEUE",
-            )
-            if not latest_game_set:
-                account.latest_game = match_end_time
-                latest_game_set = True
-            existing_ids.add(match_id)
-            # except:
-            # print(f"Failed to process match {match_id}")
+            try:
+                game_data = get_match_by_id(match_id, account.region, API_KEY).json()
+                game_data_meta = game_data["info"]
+                game_data_participants = game_data["info"]["participants"]
+                match_end_time = upsert_match(
+                    session,
+                    match_id,
+                    game_data,
+                    game_data_participants,
+                    game_type="SOLOQUEUE",
+                )
+                if not latest_game_set:
+                    account.latest_game = match_end_time
+                    latest_game_set = True
+                existing_ids.add(match_id)
+            except:
+                print(f"Failed to process match {match_id}")
         session.commit()
 
 
