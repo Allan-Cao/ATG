@@ -21,7 +21,7 @@ python -m pip install -r requirements.txt
 ## Alembic Commands
 
 ```bash
-alembic revision -m "changes"
+alembic revision --autogenerate -m "changes"
 alembic upgrade head
 alembic downgrade base
 ```
