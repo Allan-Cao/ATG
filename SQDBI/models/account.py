@@ -11,20 +11,17 @@ class Account(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     puuid: Mapped[str] = mapped_column(String(255), unique=True)
-    account_name: Mapped[str] = mapped_column(String(255))
-    account_tagline: Mapped[str] = mapped_column(String(255))
-    region: Mapped[str] = mapped_column(String(50), nullable=True)
-    last_update: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now()
-    )  # last time we updated the account details
+    account_name: Mapped[Optional[str]] = mapped_column(String(255))
+    account_tagline: Mapped[Optional[str]] = mapped_column(String(255))
+    region: Mapped[Optional[str]] = mapped_column(String(50))
+    # Last time an update occured on the account name/tagline/when the account was inserted
+    last_update: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    # Last time a new game was added to the database (used for match history ingestion)
     latest_game: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
-    # last time a new game was added to the database (used for match history ingestion)
+    # We require that all tracked accounts are associated with a player
+    player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.id"))
 
-    player_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("players.id"))
-
-    player: Mapped[Optional["Player"]] = relationship(
-        "Player", back_populates="accounts"
-    )
+    player: Mapped["Player"] = relationship("Player", back_populates="accounts")
     games: Mapped[List["Participant"]] = relationship(
         "Participant", back_populates="account"
     )
