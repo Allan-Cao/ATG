@@ -11,6 +11,8 @@ class Account(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     puuid: Mapped[str] = mapped_column(String(255), unique=True)
+    # Tournament Realm accounts technically have name/taglines (something#eProd) but this changes when a player moves teams
+    # so we don't store them for TR accounts
     account_name: Mapped[Optional[str]] = mapped_column(String(255))
     account_tagline: Mapped[Optional[str]] = mapped_column(String(255))
     region: Mapped[Optional[str]] = mapped_column(String(50))
