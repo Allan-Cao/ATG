@@ -84,3 +84,29 @@ class Participant(Base):
     kda: Mapped[Optional[float]] = mapped_column(nullable=False)
     total_cs: Mapped[Optional[int]] = mapped_column(nullable=False)
     cspm: Mapped[Optional[float]] = mapped_column(nullable=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.kda = self.calculate_kda()
+        self.total_cs = self.calculate_total_cs()
+        self.cspm = self.calculate_cspm()
+
+    def calculate_kda(self) -> Optional[float]:
+        if self.kills is None or self.assists is None or self.deaths is None:
+            return None
+        if self.deaths > 0:
+            return (self.kills + self.assists) / self.deaths
+        return self.kills + self.assists
+
+    def calculate_total_cs(self) -> Optional[int]:
+        if (
+            self.total_minions_killed is None
+            or self.total_neutral_minions_killed is None
+        ):
+            return None
+        return self.total_minions_killed + self.total_neutral_minions_killed
+
+    def calculate_cspm(self) -> Optional[float]:
+        if self.total_cs is None or self.game_duration is None:
+            return None
+        return self.total_cs / (self.game_duration / 60)

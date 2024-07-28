@@ -20,8 +20,6 @@ class Game(Base):
     game_type: Mapped[Optional[str]] = mapped_column(
         String(50)
     )  # This should be "SOLOQUEUE" for Queueid 420 games and SCRIM/ESPORTS for TR games
-    game_version_major: Mapped[int] = mapped_column(Integer)
-    game_version_minor: Mapped[int] = mapped_column(Integer)
     patch: Mapped[Optional[str]] = mapped_column(String(10))
     # NULL or 0 for Tournament Realm games
     queue_id: Mapped[Optional[int]] = mapped_column(Integer)

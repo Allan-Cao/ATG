@@ -6,7 +6,7 @@ from SQDBI.models import Game
 def extract_major_minor_version(game_version: str) -> tuple[str, str]:
     version_parts = game_version.split(".")
     if len(version_parts) >= 2:
-        return version_parts[0], version_parts[1]
+        return f"{version_parts[0]}.{version_parts[1]}"
     else:
         raise ValueError(f"Expecting major/minor patch format received: {game_version}")
 
@@ -83,7 +83,6 @@ def parse_participant_dictionary(player: dict) -> dict:
 def process_match_metadata(
     game_data, match_id, game_type: Optional[str] = None
 ) -> Game:
-    version_major, version_minor = extract_major_minor_version(game_data["gameVersion"])
     game = Game(
         id=match_id,
         game_id=game_data["gameId"],
@@ -93,8 +92,7 @@ def process_match_metadata(
         game_end=game_data["gameEndTimestamp"],
         game_duration=game_data["gameDuration"],
         game_type=game_type or game_data["gameType"],
-        game_version_major=version_major,
-        game_version_minor=version_minor,
+        patch=extract_major_minor_version(game_data["gameVersion"]),
         queue_id=game_data["queueId"],
     )
     return game
