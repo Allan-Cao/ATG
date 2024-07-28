@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from sqlalchemy import Column, String, Integer, BigInteger, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
@@ -22,8 +22,8 @@ class Game(Base):
     )  # This should be "SOLOQUEUE" for Queueid 420 games and SCRIM/ESPORTS for TR games
     game_version_major: Mapped[int] = mapped_column(Integer())
     game_version_minor: Mapped[int] = mapped_column(Integer())
-
-    queue_id: Mapped[int] = mapped_column(Integer)
+    # NULL or 0 for Tournament Realm games
+    queue_id: Mapped[Optional[int]] = mapped_column(Integer)
 
     participants: Mapped[List["Participant"]] = relationship(
         "Participant", back_populates="game"
