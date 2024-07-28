@@ -11,9 +11,6 @@ class PlayerTeamAssociation(Base):
     team_id: Mapped[int] = mapped_column(Integer, ForeignKey("teams.id"))
     position: Mapped[str] = mapped_column(String(10))
 
-    player: Mapped["Player"] = relationship(
-        "Player", back_populates="team_associations"
-    )
     team: Mapped["Team"] = relationship("Team", back_populates="player_associations")
 
     def __repr__(self):

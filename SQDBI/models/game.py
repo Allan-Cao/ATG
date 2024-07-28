@@ -24,7 +24,3 @@ class Game(Base):
     game_version_minor: Mapped[int] = mapped_column(Integer())
     # NULL or 0 for Tournament Realm games
     queue_id: Mapped[Optional[int]] = mapped_column(Integer)
-
-    participants: Mapped[List["Participant"]] = relationship(
-        "Participant", back_populates="game"
-    )

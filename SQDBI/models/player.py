@@ -14,15 +14,7 @@ class Player(Base):
     # For now, this should be their Leaguepedia disambiguation name
     disambiguation: Mapped[Optional[str]] = mapped_column(String(255), unique=True)
 
-    accounts: Mapped[Optional[List["Account"]]] = relationship(
-        "Account", back_populates="player"
-    )
-    team_associations: Mapped[Optional[List["PlayerTeamAssociation"]]] = relationship(
-        "PlayerTeamAssociation", back_populates="player"
-    )
-    solo_queue_games: Mapped[Optional[List["Participant"]]] = relationship(
-        "Participant", back_populates="player"
-    )
+    accounts: Mapped[List["Account"]] = relationship("Account", back_populates="player")
 
     def __repr__(self) -> str:
         if self.disambiguation is None:

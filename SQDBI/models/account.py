@@ -22,9 +22,6 @@ class Account(Base):
     player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.id"))
 
     player: Mapped["Player"] = relationship("Player", back_populates="accounts")
-    games: Mapped[List["Participant"]] = relationship(
-        "Participant", back_populates="account"
-    )
 
     def __repr__(self) -> str:
         return f"<Account(id='{self.id}', {self.account_name}#{self.account_tagline}, region='{self.region}')>"
