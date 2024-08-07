@@ -3,7 +3,7 @@ from SQDBI.utils import Side
 from SQDBI.models import Game
 
 
-def extract_major_minor_version(game_version: str) -> tuple[str, str]:
+def extract_major_minor_patch(game_version: str) -> str:
     version_parts = game_version.split(".")
     if len(version_parts) >= 2:
         return f"{version_parts[0]}.{version_parts[1]}"
@@ -92,7 +92,7 @@ def process_match_metadata(
         game_end=game_data["gameEndTimestamp"],
         game_duration=game_data["gameDuration"],
         game_type=game_type or game_data["gameType"],
-        patch=extract_major_minor_version(game_data["gameVersion"]),
+        patch=extract_major_minor_patch(game_data["gameVersion"]),
         queue_id=game_data["queueId"],
     )
     return game
