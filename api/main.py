@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv("../.shared.env")
 
+import requests
 from sqlalchemy import Integer, select, func, desc, and_, case
 from sqlalchemy.exc import IntegrityError
 from SQDBI.database import Session
@@ -22,8 +23,8 @@ app = FastAPI()
 
 
 class NewAccount(BaseModel):
-    riot_username: Optional[str] = Field(None, description="Account's riot username")
-    riot_tagline: Optional[str] = Field(None, description="Account's riot tagline")
+    account_name: Optional[str] = Field(None, description="Account's riot username")
+    account_tagline: Optional[str] = Field(None, description="Account's riot tagline")
     puuid: Optional[str] = Field(None, description="Account's PUUID")
     region: Optional[str] = Field(None, description="Account's region e.g. NA, EUW")
     player_name: str
@@ -34,8 +35,7 @@ class PlayerStatRequest(BaseModel):
     return_calculated_games: bool = Field(
         False, description="Returns the games used in calculation"
     )
-    game_version_major: Optional[int] = Field(None, description="LoL Season")
-    game_version_minor: Optional[int] = Field(None, description="Patch number")
+    patch: Optional[str] = Field(None, description="LoL Patch")
     before: Optional[int] = Field(
         None, description="Gets games before-before UNIX timestamp"
     )
@@ -88,7 +88,7 @@ def get_player_team(
         raise HTTPException(status_code=400, detail="Unknown player_name received")
 
     statement = (
-        select(Team.code)
+        select(Team.team_code)
         .join(PlayerTeamAssociation, Team.id == PlayerTeamAssociation.team_id)
         .join(Player, Player.id == PlayerTeamAssociation.player_id)
         .where(Player.id == player.id)
@@ -121,14 +121,7 @@ def get_player_stats_by_name(
         .group_by("champion")
         .order_by(desc("games"))
     )
-    if player_request.game_version_major is not None:
-        statement = statement.where(
-            Game.game_version_major == player_request.game_version_major
-        )
-    if player_request.game_version_minor is not None:
-        statement = statement.where(
-            Game.game_version_minor == player_request.game_version_minor
-        )
+    statement = statement.where(Game.patch == player_request.patch)
     if player_request.after is not None:
         statement = statement.where(Game.game_start > player_request.after)
     if player_request.before is not None:
@@ -171,36 +164,45 @@ def associate_new_account(
     )
     if player_id is None:
         raise HTTPException(status_code=400, detail="Unknown player name received")
-    # We default to using the PUUID (since it's more accurate), then try the account/tagline
-    try:
-        if new_account.puuid is not None:
-            new_account_details = get_account_by_puuid(new_account.puuid, API_KEY)
-        elif (
-            new_account.riot_username is not None
-            and new_account.riot_tagline is not None
+    if new_account.region != "TOURNAMENT":
+        # We can't process this if don't receive a puuid and either name/tagline is not received
+        if new_account.puuid is None and (
+            new_account.account_name is None or new_account.account_tagline is None
         ):
-            new_account_details = get_account_by_riot_id(
-                new_account.riot_username, new_account.riot_tagline, API_KEY
+            raise HTTPException(
+                status_code=400,
+                detail="Expecting PUUID and/or Account/Tagline pair. Not enough values were received.",
             )
-        else:
-            raise ValueError(
-                "Expecting PUUID or Account/Tagline pair. No values were received."
+        try:
+            if new_account.puuid is not None:
+                account_details = get_account_by_puuid(new_account.puuid, API_KEY)
+            else:
+                account_details = get_account_by_riot_id(
+                    new_account.account_name, new_account.account_tagline, API_KEY
+                )
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(
+                status_code=e.response.status_code, detail=e.response.text
             )
-    except Exception as e:
-        # Might want to handle 429/404 exceptions differently.
-        raise HTTPException(status_code=400, detail=str(e))
-    if new_account_details is None:
-        raise HTTPException(
-            status_code=400, detail="Invalid riot account details received"
+        new_account_obj = Account(
+            puuid=account_details.get("puuid"),
+            account_name=account_details.get("gameName"),
+            account_tagline=account_details.get("tagLine"),
+            region=new_account.region,
+            player_id=player_id,
         )
-    new_account_obj = Account(
-        puuid=new_account_details["puuid"],
-        account_name=new_account_details.get("gameName"),
-        account_tagline=new_account_details.get("tagLine"),
-        player_id=player_id,
-    )
-    if new_account.region is not None:
-        new_account_obj.region = new_account.region
+    else:
+        if new_account.puuid is None:
+            raise HTTPException(
+                status_code=400, detail="PUUIDs are required for TR accounts"
+            )
+        new_account_obj = Account(
+            puuid=new_account.puuid,
+            account_name=new_account.account_name,
+            account_tagline=new_account.account_tagline,
+            region=new_account.region,
+            player_id=player_id,
+        )
     db.add(new_account_obj)
     try:
         db.commit()
