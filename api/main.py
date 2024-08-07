@@ -68,9 +68,8 @@ def get_player_accounts(
     accounts = db.execute(
         select(Account.account_name, Account.account_tagline)
         .join(Player, Player.id == Account.player_id)
-        .where(Player.name == player_name)
+        .where(and_(Player.name == player_name), Account.region != "TOURNAMENT")
     )
-
     return [_.account_name + "#" + _.account_tagline for _ in accounts]
 
 

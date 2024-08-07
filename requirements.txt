@@ -12,3 +12,4 @@ tqdm
 backoff
 gspread
 fastapi
+fastapi[standard]
