@@ -15,7 +15,8 @@ class Account(Base):
     # so we don't store them for TR accounts
     account_name: Mapped[Optional[str]] = mapped_column(String(255))
     account_tagline: Mapped[Optional[str]] = mapped_column(String(255))
-    region: Mapped[Optional[str]] = mapped_column(String(50))
+    # Regions should be set on insertion
+    region: Mapped[str] = mapped_column(String(50), nullable=False)
     # Last time an update occured on the account name/tagline/when the account was inserted
     last_update: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     # Last time a new game was added to the database (used for match history ingestion)
