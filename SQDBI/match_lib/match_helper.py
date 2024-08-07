@@ -83,16 +83,30 @@ def parse_participant_dictionary(player: dict) -> dict:
 def process_match_metadata(
     game_data, match_id, game_type: Optional[str] = None
 ) -> Game:
-    game = Game(
-        id=match_id,
-        game_id=game_data["gameId"],
-        platform_id=game_data["platformId"],
-        game_creation=game_data["gameCreation"],
-        game_start=game_data["gameStartTimestamp"],
-        game_end=game_data["gameEndTimestamp"],
-        game_duration=game_data["gameDuration"],
-        game_type=game_type or game_data["gameType"],
-        patch=extract_major_minor_patch(game_data["gameVersion"]),
-        queue_id=game_data["queueId"],
-    )
+    if game_data.get("endOfGameResult") == "Abort_Unexpected":
+        game = Game(
+            id=match_id,
+            game_id=match_id.split("_")[1],
+            platform_id=match_id.split("_")[0],
+            game_creation=game_data["gameCreation"],
+            game_start=game_data["gameStartTimestamp"],
+            game_end=game_data["gameEndTimestamp"],
+            game_duration=game_data["gameDuration"],
+            game_type=game_type or game_data["gameType"],
+            patch=game_data["gameVersion"],
+            queue_id=game_data["queueId"],
+        )
+    else:
+        game = Game(
+            id=match_id,
+            game_id=game_data["gameId"],
+            platform_id=game_data["platformId"],
+            game_creation=game_data["gameCreation"],
+            game_start=game_data["gameStartTimestamp"],
+            game_end=game_data["gameEndTimestamp"],
+            game_duration=game_data["gameDuration"],
+            game_type=game_type or game_data["gameType"],
+            patch=extract_major_minor_patch(game_data["gameVersion"]),
+            queue_id=game_data["queueId"],
+        )
     return game

@@ -10,7 +10,6 @@ from SQDBI.models import Player, Game, Participant, Account
 from SQDBI.utils import SEASON_START
 from .match_helper import (
     parse_participant_dictionary,
-    extract_major_minor_version,
     process_match_metadata,
 )
 
@@ -57,11 +56,13 @@ def upsert_match_history(
             f"Updating match history for {account.account_name}#{account.account_tagline}"
         )
 
+        # To save on API calls, we should insert from season 14 start (for new accounts) or from the last known game.
         match_ids = get_match_history(
             account.puuid,
             account.region,
             API_KEY,
-            startTime=start_time,
+            startTime=account.latest_game or SEASON_START,
+            # startTime=SEASON_START,
             queue=420,
         )
 
