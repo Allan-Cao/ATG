@@ -93,7 +93,7 @@ def process_match_metadata(
             game_end=game_data["gameEndTimestamp"],
             game_duration=game_data["gameDuration"],
             game_type=game_type or game_data["gameType"],
-            patch=game_data["gameVersion"],
+            patch=extract_major_minor_patch(game_data["gameVersion"]),
             queue_id=game_data["queueId"],
         )
     else:
