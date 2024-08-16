@@ -57,12 +57,15 @@ def upsert_match_history(
         )
 
         # To save on API calls, we should insert from season 14 start (for new accounts) or from the last known game.
+        # However, startTime requires UNIX timestamps in Seconds while we are storing them in Miliseconds
+        startTime = SEASON_START
+        if account.latest_game is not None:
+            startTime = int(account.latest_game / 1000)
         match_ids = get_match_history(
             account.puuid,
             account.region,
             API_KEY,
-            startTime=account.latest_game or SEASON_START,
-            # startTime=SEASON_START,
+            startTime=startTime,
             queue=420,
         )
 
@@ -100,7 +103,7 @@ def upsert_match(
     game_data_participants,
     force: bool = False,
     game_type: Optional[str] = None,
-):
+) -> Optional[int]:
     match = session.query(Game).filter(Game.id == match_id).first()
     # IF we are not forcing an update, we need to check the game doesn't already exist.
     if match is not None and force == False:
