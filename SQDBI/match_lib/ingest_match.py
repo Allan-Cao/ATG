@@ -1,7 +1,6 @@
 import datetime
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session as _Session
-from typing import List, Set, Optional
 from tqdm import tqdm
 from SQDBI.api import get_match_history, get_match_by_id, get_match_string
 from SQDBI.api.account_v1 import get_account_by_puuid
@@ -44,7 +43,7 @@ def update_player_accounts(session: _Session, API_KEY: str):
 
 def upsert_match_history(
     session: _Session,
-    existing_ids: Set,
+    existing_ids: set,
     player: Player,
     API_KEY: str,
     start_time: int = SEASON_START,
@@ -102,8 +101,8 @@ def upsert_match(
     game_data_meta,
     game_data_participants,
     force: bool = False,
-    game_type: Optional[str] = None,
-) -> Optional[int]:
+    game_type: str | None = None,
+) -> int | None:
     match = session.query(Game).filter(Game.id == match_id).first()
     # IF we are not forcing an update, we need to check the game doesn't already exist.
     if match is not None and force == False:

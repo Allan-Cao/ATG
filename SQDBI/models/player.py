@@ -1,4 +1,3 @@
-from typing import List, Optional
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from SQDBI.models import Account, Base
@@ -12,9 +11,9 @@ class Player(Base):
     name: Mapped[str] = mapped_column(String(255))
     # We store the name used on Leaguepedia/Oracles Elixer here for easier use with those services.
     # For now, this should be their Leaguepedia disambiguation name
-    disambiguation: Mapped[Optional[str]] = mapped_column(String(255), unique=True)
+    disambiguation: Mapped[str | None] = mapped_column(String(255), unique=True)
 
-    accounts: Mapped[List["Account"]] = relationship("Account", back_populates="player")
+    accounts: Mapped[list["Account"]] = relationship("Account", back_populates="player")
 
     def __repr__(self) -> str:
         if self.disambiguation is None:
