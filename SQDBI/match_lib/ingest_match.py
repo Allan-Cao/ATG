@@ -14,12 +14,14 @@ from .match_helper import (
 
 
 def update_player_accounts(session: _Session, API_KEY: str):
+    # We update the accounts that haven't been updated in 7 days
     accounts_to_update = session.scalars(
         select(Account).where(
             and_(
                 Account.last_update
                 < (datetime.datetime.now() - datetime.timedelta(days=7)),
                 Account.region != "TOURNAMENT",
+                Account.skip_update == False,  # We are NOT skipping update
             )
         )
     )

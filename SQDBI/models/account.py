@@ -1,4 +1,13 @@
-from sqlalchemy import BigInteger, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import (
+    BigInteger,
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    DateTime,
+    Boolean,
+)
+from sqlalchemy.types import SmallInteger
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql.functions import func
 from datetime import datetime
@@ -22,6 +31,10 @@ class Account(Base):
     latest_game: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     # We require that all tracked accounts are associated with a player
     player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.id"))
+    # We need a way to flag inactive / non-match history tracked accounts
+    skip_update: Mapped[bool] = mapped_column(Boolean, default=False)
+    # We use an binary integer flag to save account details.
+    account_details: Mapped[int] = mapped_column(SmallInteger, default=0)
 
     player: Mapped["Player"] = relationship("Player", back_populates="accounts")
 
