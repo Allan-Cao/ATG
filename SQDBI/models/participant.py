@@ -106,6 +106,10 @@ class Participant(Base):
         return self.total_minions_killed + self.total_neutral_minions_killed
 
     def calculate_cspm(self) -> float | None:
-        if self.total_cs is None or self.game_duration is None:
+        if (
+            self.total_cs is None
+            or self.game_duration is None
+            or self.game_duration == 0
+        ):
             return None
         return self.total_cs / (self.game_duration / 60)

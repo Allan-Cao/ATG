@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session as _Session
 from tqdm import tqdm
@@ -15,27 +15,29 @@ from .match_helper import (
 
 def update_player_accounts(session: _Session, API_KEY: str):
     # We update the accounts that haven't been updated in 7 days
-    accounts_to_update = session.scalars(
-        select(Account).where(
-            and_(
-                Account.last_update
-                < (datetime.datetime.now() - datetime.timedelta(days=7)),
-                Account.region != "TOURNAMENT",
-                Account.skip_update == False,  # We are NOT skipping update
+    weekly_update = datetime.now() - timedelta(days=7)
+    accounts_to_update = list(
+        session.scalars(
+            select(Account).where(
+                and_(
+                    Account.last_update < weekly_update,
+                    Account.solo_queue_account == True,
+                    Account.skip_update == False,  # We are NOT skipping update
+                )
             )
         )
     )
-    if len(accounts_to_update.all()) == 0:
+    if len(accounts_to_update) == 0:
         print("All accounts are up to date!")
         return
-    for account in tqdm(accounts_to_update.all()):
-        account_details = get_account_by_puuid(account.puuid, API_KEY)
+    for account in tqdm(accounts_to_update):
+        account_details = get_account_by_puuid(account.puuid, API_KEY).json()
         if account_details is None:
             print(f"No account details found for PUUID: {account.puuid}")
             continue
         account.account_name = account_details.get("gameName")
         account.account_tagline = account_details.get("tagLine")
-        account.last_update = datetime.datetime.now()
+        account.last_update = datetime.now()
     try:
         session.commit()
     except Exception as e:
@@ -119,9 +121,11 @@ def upsert_match(
     session.add(game)
     session.flush()
 
-    participants = process_match_participants(game, game_data_participants)
-    session.add_all(participants)
-    session.flush()
+    # For some reason, zero duration game's are permitted by GRID. We can not process the match data for these games
+    if game.game_duration and game.game_duration > 0:
+        participants = process_match_participants(game, game_data_participants)
+        session.add_all(participants)
+        session.flush()
     return game_data_meta["gameEndTimestamp"]
 
 
