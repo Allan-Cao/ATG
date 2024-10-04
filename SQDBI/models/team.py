@@ -11,7 +11,7 @@ class Team(Base):
     grid_id: Mapped[str | None] = mapped_column(String(50), unique=True)
     # Multiple teams can share the same team_code due to inconsistancies in GRID/Bayes data e.x. academy teams share
     # the same team code as their main team for some weird reason.
-    team_code: Mapped[str | None] = mapped_column(String(5), unique=False)
+    team_code: Mapped[str | None] = mapped_column(String(10), unique=False)
     # We store both GRID and RIOT esports IDs as Strings
     riot_esports_id: Mapped[str | None] = mapped_column(String(50), unique=True)
     logo_url: Mapped[str | None] = mapped_column(String())
