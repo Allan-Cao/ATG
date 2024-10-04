@@ -26,7 +26,7 @@ def get_account_by_riot_id(game_name: str, tag_line: str, api_key: str) -> dict:
 def get_account_by_puuid(puuid: str, api_key: str) -> dict:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}?api_key={api_key}",
+        f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}",
         headers=_headers,
     )
 
