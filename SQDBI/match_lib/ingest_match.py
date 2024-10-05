@@ -53,7 +53,7 @@ def upsert_match_history(
     start_time: int = SEASON_START,
 ):
     for account in player.accounts or []:
-        if account.region == "TOURNAMENT":
+        if not account.solo_queue_account or account.skip_update:
             continue
         print(
             f"Updating match history for {account.account_name}#{account.account_tagline}"
