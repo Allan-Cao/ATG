@@ -22,6 +22,6 @@ class Game(Base):
     patch: Mapped[str | None] = mapped_column(String(10))
     # NULL or 0 for Tournament Realm games
     queue_id: Mapped[int | None] = mapped_column(Integer)
-    tournament_id: Mapped[str | None] = mapped_column(ForeignKey("tournaments.id"))
+    tournament_id: Mapped[int | None] = mapped_column(ForeignKey("tournaments.id"))
     game_number: Mapped[int | None] = mapped_column(Integer)
     update: Mapped[datetime | None] = mapped_column(DateTime, default=func.now())
