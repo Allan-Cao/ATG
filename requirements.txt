@@ -13,3 +13,9 @@ backoff
 gspread
 fastapi
 fastapi[standard]
+
+jupyterlab
+matplotlib
+seaborn
+
+ariadne-codegen
