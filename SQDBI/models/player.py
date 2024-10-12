@@ -14,6 +14,8 @@ class Player(Base):
     # We store the name used on Leaguepedia/Oracles Elixer here for easier use with those services.
     # For now, this should be their Leaguepedia disambiguation name
     disambiguation: Mapped[str | None] = mapped_column(String(255), unique=True)
+    # For temporary testing
+    external_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
     # We store the associated RIOT Esports API accounts in the account table too in a *weird* but appropriate format
     accounts: Mapped[list["Account"]] = relationship("Account", back_populates="player")
 
