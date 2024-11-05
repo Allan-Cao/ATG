@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="SQDBI",
-    version="0.0.1",
+    version="0.0.2",
     packages=["SQDBI"],
     install_requires=[
         "SQLAlchemy",
