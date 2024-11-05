@@ -9,7 +9,8 @@ setup(
         "tqdm",
         "backoff",
         "psycopg2-binary",
-        "ratelimit" "requests",
+        "ratelimit",
+        "requests",
     ],
     python_requires=">=3.10",  # Union typing is extensively used.
 )
