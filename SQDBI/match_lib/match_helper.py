@@ -1,6 +1,6 @@
 from typing import Union, Optional
-from SQDBI.utils import Side
-from SQDBI.models import Game
+from ..utils import Side
+from ..models import Game
 
 
 def extract_major_minor_patch(game_version: str) -> str:
