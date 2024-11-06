@@ -1,1 +1,1 @@
-from SQDBI.database.database import Session
+from .database import Session

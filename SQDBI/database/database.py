@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
-from SQDBI.models import Base
+from ..models import Base
 
 # Get the database connection details from environment variables
 DB_CONNECTION_STRING = os.getenv("DB_CONNECTION_STRING")
