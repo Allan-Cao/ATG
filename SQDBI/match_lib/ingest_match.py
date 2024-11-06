@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session as _Session
 from tqdm import tqdm
 from ..api import get_match_history, get_match_by_id, get_match_string
 from ..api.account_v1 import get_account_by_puuid
-from ..database import Session
 from ..models import Player, Game, Participant, Account
 from ..utils import SEASON_START
 from .match_helper import (
