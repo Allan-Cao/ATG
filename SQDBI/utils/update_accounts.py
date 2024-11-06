@@ -1,5 +1,5 @@
 from pygsheets import Worksheet
-from SQDBI.api import get_account_by_puuid, get_account_by_riot_id
+from ..api import get_account_by_puuid, get_account_by_riot_id
 from collections import defaultdict
 from datetime import datetime
 
