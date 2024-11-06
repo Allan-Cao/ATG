@@ -12,8 +12,8 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql.functions import func
 from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime
-from SQDBI.models import Base
-from SQDBI.api.utils import server_string
+from .base import Base
+from ..api.utils import server_string
 
 
 class Account(Base):

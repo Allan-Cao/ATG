@@ -9,7 +9,7 @@ from sqlalchemy import (
     JSON,
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from SQDBI.models import Base
+from .base import Base
 
 
 class Participant(Base):

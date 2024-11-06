@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from SQDBI.models import Account, Base
+from .base import Base
+from .account import Account
 
 
 class Player(Base):

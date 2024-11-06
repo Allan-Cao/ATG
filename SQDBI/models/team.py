@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from SQDBI.models import Base, PlayerTeamAssociation
+from .base import Base
+from .player_team_association import PlayerTeamAssociation
 
 
 class Team(Base):

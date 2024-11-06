@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey, String, Integer, BigInteger, DateTime, func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
-from SQDBI.models import Base
+from .base import Base
 
 
 class Game(Base):

@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import String, Integer, Boolean, DateTime
 from sqlalchemy.types import SmallInteger
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from SQDBI.models import Base
+from .base import Base
 
 
 class Tournament(Base):
