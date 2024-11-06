@@ -1,3 +1,3 @@
-from .database import Session
+from .database import get_session_factory
 
-__all__ = ["Session"]
+__all__ = ["get_session_factory"]
