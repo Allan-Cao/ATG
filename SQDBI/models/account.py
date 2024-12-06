@@ -1,6 +1,5 @@
 from sqlalchemy import (
     BigInteger,
-    Column,
     Integer,
     String,
     ForeignKey,
@@ -33,8 +32,8 @@ class Account(Base):
     last_update: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     # Last time a new game was added to the database (used for match history ingestion)
     latest_game: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    # We require that all tracked accounts are associated with a player
-    player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.id"))
+    # Player id associated with the tracked account
+    player_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("players.id"))
     # We need a way to flag inactive / non-match history tracked accounts
     skip_update: Mapped[bool] = mapped_column(Boolean, default=False)
     # We use an binary integer flag to save account details.
