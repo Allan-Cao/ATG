@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Optional
 from ..utils import Side
 from ..models import Game
 
