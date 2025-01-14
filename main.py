@@ -13,9 +13,9 @@ os.environ.update(config)
 
 import cassiopeia as cass
 from cassiopeia import Patch
-from SQDBI.match_lib import upsert_match_history, update_player_accounts
-from SQDBI.database import get_session_factory
-from SQDBI.models import Player, Game
+from ATG.match_lib import upsert_match_history, update_player_accounts
+from ATG.database import get_session_factory
+from ATG.models import Player, Game
 
 
 RIOT_API = os.environ.get("RIOT_API")
