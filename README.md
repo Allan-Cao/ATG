@@ -1,6 +1,16 @@
-# SQDBI - Solo Queue Database Ingest
+# ATG - All The Games
 
-Models and scripts to store riot summary files for a database of players.
+Opinionated library of database models and scripts to store solo queue / competitive player data tailored for LoL Esports.
+
+## Features
+- Ratelimited functions to access Riot & GRID APIs.
+- SQLAlchemy database models compatible with solo queue & esports games
+- Scripts to insert/manage solo queue accounts & games.
+
+## Todo
+- Properly handle API error codes
+- Handle draft data / other available esports data
+- Open source GRID ingest code
 
 ## Virtualenv
 
@@ -24,13 +34,4 @@ python -m pip install -r requirements.txt
 alembic revision --autogenerate -m "changes"
 alembic upgrade head
 alembic downgrade base
-```
-
-## FastAPI
-
-Run the FastAPI server with the following commands
-
-```bash
-cd api
-fastapi dev main.py
 ```
