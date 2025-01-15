@@ -1,7 +1,7 @@
 import requests as r
 from requests import Response
 from .utils import headers, routing
-from ratelimit import limits, RateLimitException
+from ratelimit import limits
 from backoff import on_predicate, runtime
 
 MAX_CALLS_PER_TEN_SECONDS = 2000
@@ -28,7 +28,6 @@ def get_match_by_id(
         f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}",
         headers=_headers,
     )
-    # response.raise_for_status()
     return response
 
 
@@ -46,14 +45,13 @@ def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> Re
         headers=_headers,
         params=kwargs,
     )
-    # response.raise_for_status()
     return response
 
 
 def get_match_history(puuid: str, region: str, api_key: str, **kwargs) -> list[str]:
     start = 0
     count = 100
-    matches = []
+    match_history = []
     while True:
         match_list = get_available_matches(
             puuid=puuid,
@@ -62,10 +60,17 @@ def get_match_history(puuid: str, region: str, api_key: str, **kwargs) -> list[s
             start=start,
             count=count,
             **kwargs,
-        ).json()
-        if len(match_list) == 0:
-            break
-        matches.extend(match_list)
-        start += count
-
-    return matches
+        )
+        if match_list:
+            try:
+                match_list.raise_for_status()
+                match_list = match_list.json()
+                if len(match_list) == 0:
+                    break
+                match_history.extend(match_list)
+                start += count
+            except:
+                # If an error occurs, we will fail.
+                print(f"{match_list.status_code} - Failed to retrieve match history")
+                return match_history
+    return match_history
