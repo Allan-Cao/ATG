@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session as _Session
 from tqdm import tqdm
-from ..api import get_match_history, get_match_by_id, get_match_string
+from ..api import get_match_history, get_match_by_id
 from ..api.account_v1 import get_account_by_puuid
 from ..models import Player, Game, Participant, Account
 from ..utils import SEASON_START
