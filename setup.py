@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="SQDBI",
-    version="0.1.0.2",
-    packages=find_packages(include=["SQDBI", "SQDBI.*"]),
+    name="ATG",
+    version="0.1.0.1",
+    packages=find_packages(include=["ATG", "ATG.*"]),
     install_requires=[
         "SQLAlchemy",
         "tqdm",
