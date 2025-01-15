@@ -30,10 +30,11 @@ def update_player_accounts(session: _Session, API_KEY: str):
         print("All accounts are up to date!")
         return
     for account in tqdm(accounts_to_update):
-        account_details = get_account_by_puuid(account.puuid, API_KEY).json()
+        account_details = get_account_by_puuid(account.puuid, API_KEY)
         if account_details is None:
             print(f"No account details found for PUUID: {account.puuid}")
             continue
+        account_details = account_details.json()
         account.account_name = account_details.get("gameName")
         account.account_tagline = account_details.get("tagLine")
         account.last_update = datetime.now()
@@ -79,7 +80,10 @@ def upsert_match_history(
         latest_game_set = False
         for match_id in tqdm(new_match_ids):
             try:
-                game_data = get_match_by_id(match_id, account.region, API_KEY).json()
+                game_data = get_match_by_id(match_id, account.region, API_KEY)
+                if game_data is None:
+                    raise Exception() # We handle error messages in the except
+                game_data = game_data.json()
                 game_data_meta = game_data["info"]
                 game_data_participants = game_data["info"]["participants"]
                 match_end_time = upsert_match(
