@@ -9,19 +9,3 @@ backoff
 # General Development Libraries
 alembic
 black
-
-# API development (should be moved to a seperate repo in future)
-fastapi
-fastapi[standard]
-
-# Required for analysis
-gspread
-cassiopeia
-jupyterlab
-pandas
-numpy
-matplotlib
-seaborn
-
-# Required for Grid API development
-ariadne-codegen
