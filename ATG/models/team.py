@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .base import Base
 from .player_team_association import PlayerTeamAssociation
@@ -24,4 +24,4 @@ class Team(Base):
     )
 
     def __repr__(self):
-        return f"<Team(id='{self.id}', code='{self.code}')>"
+        return f"<Team(id='{self.id}', code='{self.name}')>"
