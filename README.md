@@ -27,6 +27,10 @@ To setup the project
 python -m pip install -r requirements.txt
 ```
 
+On Linux, to satisfy psycopg2 in a virtual environment, you may need to run
+```bash
+sudo apt-get install libpq-dev
+```
 
 ## Alembic Commands
 
