@@ -1,7 +1,7 @@
 import requests as r
 from requests import Response
 from .utils import headers, server_string
-from ratelimit import limits, RateLimitException
+from ratelimit import limits
 from backoff import on_predicate, runtime
 
 MAX_CALLS_PER_TEN_SECONDS = 2000
