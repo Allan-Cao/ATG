@@ -1,5 +1,6 @@
-from sqlalchemy import ForeignKey, String, Integer, BigInteger, DateTime, func
+from sqlalchemy import ForeignKey, Text, Integer, BigInteger, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime
 from .base import Base
 
@@ -8,20 +9,38 @@ class Game(Base):
     __tablename__ = "games"
 
     id: Mapped[str] = mapped_column(
-        String(255), primary_key=True
+        Text, primary_key=True
     )  # Complete game id containing region and game id (e.g. EUW1_1234567890)
+
+    # InfoDto
+    end_of_game_result: Mapped[str] = mapped_column(Text)
+    game_creation: Mapped[int] = mapped_column(BigInteger)
+    game_duration: Mapped[int] = mapped_column(BigInteger)  # in seconds
+    game_end_timestamp: Mapped[int] = mapped_column(BigInteger)
     game_id: Mapped[int] = mapped_column(BigInteger)  # Riot's game id
-    platform_id: Mapped[str] = mapped_column(String(50))  # e.g. EUW1
-    game_creation: Mapped[int | None] = mapped_column(BigInteger)
-    game_start: Mapped[int | None] = mapped_column(BigInteger)
-    game_end: Mapped[int | None] = mapped_column(BigInteger)
-    game_duration: Mapped[int | None] = mapped_column(Integer)  # in seconds
-    game_type: Mapped[str | None] = mapped_column(
-        String(50)
-    )  # This should be "SOLOQUEUE" for Queueid 420 games and SCRIM/ESPORTS for TR games
-    patch: Mapped[str | None] = mapped_column(String(10))
-    # NULL or 0 for Tournament Realm games
+    game_mode: Mapped[str] = mapped_column(Text)
+    game_name: Mapped[str] = mapped_column(Text)
+    game_start_timestamp: Mapped[int] = mapped_column(BigInteger)
+    game_type: Mapped[str] = mapped_column(Text)
+    game_version: Mapped[str] = mapped_column(Text) # Riot game version
+    map_id: Mapped[int] = mapped_column(Integer)
+    platform_id: Mapped[str] = mapped_column(Text)  # e.g. EUW1
     queue_id: Mapped[int | None] = mapped_column(Integer)
+    tournament_code: Mapped[str] = mapped_column(Text)
+    @hybrid_property
+    def patch(self):
+        version_split = self.game_version.split(".")
+        return f"{version_split[0]}.{version_split[1]}" if len(version_split) >= 2 else None
+
+    @patch.expression
+    def patch(cls):
+        return func.concat(
+            func.split_part(cls.game_version, ".", 1),
+            ".",
+            func.split_part(cls.game_version, ".", 2)
+        )
+    # Tournament Game Information
     tournament_id: Mapped[int | None] = mapped_column(ForeignKey("tournaments.id"))
-    game_number: Mapped[int | None] = mapped_column(Integer)
+    tournament_game_number: Mapped[int | None] = mapped_column(Integer)
+    # Debug
     update: Mapped[datetime | None] = mapped_column(DateTime, default=func.now())
