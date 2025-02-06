@@ -1,10 +1,8 @@
-# from cassiopeia import Patch
 from datetime import timedelta
 from enum import Enum
 
 DEFAULT_REGION = "NA"
-# SEASON_START = Patch.from_str("14.1", region=DEFAULT_REGION).start
-SEASON_START = 1704884400  # Season 14 start
+SEASON_START = 1736420400  # Season 15. Season 14 was 1704884400
 MINIMUM_MATCH_DURATION = timedelta(minutes=10)
 
 
@@ -19,3 +17,12 @@ class Lane(Enum):
     MID = "mid_lane"
     BOT = "bot_lane"
     SUP = "utility"
+
+
+class TeamPosition(Enum):
+    AFK = None
+    BOTTOM = "BOT"
+    JUNGLE = "JNG"
+    MIDDLE = "MID"
+    TOP = "TOP"
+    UTILITY = "SUP"
