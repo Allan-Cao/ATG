@@ -1,6 +1,6 @@
 import requests as r
 from requests import Response
-from .utils import headers, server_string
+from .utils import headers
 from ratelimit import limits
 from backoff import on_predicate, runtime
 
@@ -18,9 +18,8 @@ TEN_SECONDS = 10
 def get_active_games(puuid: str, region: str, api_key: str, **kwargs) -> Response:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://{server_string[region].lower()}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}",
+        f"https://{region.lower()}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}",
         headers=_headers,
         params=kwargs,
     )
-    # response.raise_for_status()
     return response

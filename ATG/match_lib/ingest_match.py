@@ -4,24 +4,20 @@ from sqlalchemy.orm import Session as _Session
 from tqdm import tqdm
 from ..api import get_match_history, get_match_by_id
 from ..api.account_v1 import get_account_by_puuid
-from ..models import Player, Game, Participant, Account
-from ..utils import SEASON_START
-from .match_helper import (
-    parse_participant_dictionary,
-    process_match_metadata,
-)
+from ..models import Player, Game, Participant, Account, TeamDto
+from ..utils import SEASON_START, camel_to_snake, snake_to_camel
 
 
-def update_player_accounts(session: _Session, API_KEY: str):
-    # We update the accounts that haven't been updated in 7 days
-    weekly_update = datetime.now() - timedelta(days=7)
+def update_account_names(session: _Session, API_KEY: str, days: int = 7):
+    """Updates player account names/taglines"""
+    update_delta = datetime.now() - timedelta(days=days)
     accounts_to_update = list(
         session.scalars(
             select(Account).where(
                 and_(
-                    Account.last_update < weekly_update,
+                    Account.updated < update_delta,
                     Account.solo_queue_account == True,
-                    Account.skip_update == False,  # We are NOT skipping update
+                    Account.skip_update == False,
                 )
             )
         )
@@ -35,9 +31,8 @@ def update_player_accounts(session: _Session, API_KEY: str):
             print(f"No account details found for PUUID: {account.puuid}")
             continue
         account_details = account_details.json()
-        account.account_name = account_details.get("gameName")
-        account.account_tagline = account_details.get("tagLine")
-        account.last_update = datetime.now()
+        account.name = account_details.get("gameName")
+        account.tagline = account_details.get("tagLine")
     try:
         session.commit()
     except Exception as e:
@@ -51,12 +46,13 @@ def upsert_match_history(
     player: Player,
     API_KEY: str,
     start_time: int = SEASON_START,
+    queue_id: int = 420,
 ):
     for account in player.accounts or []:
         if not account.solo_queue_account or account.skip_update:
             continue
         print(
-            f"Updating match history for {account.account_name}#{account.account_tagline}"
+            f"Updating match history for {str(account)}"
         )
 
         # To save on API calls, we should insert from season 14 start (for new accounts) or from the last known game.
@@ -69,7 +65,7 @@ def upsert_match_history(
             account.region,
             API_KEY,
             startTime=startTime,
-            queue=420,
+            queue=queue_id,
         )
 
         new_match_ids = set(match_ids) - existing_ids
@@ -80,33 +76,24 @@ def upsert_match_history(
         latest_game_set = False
         for match_id in tqdm(new_match_ids):
             try:
-                game_data = get_match_by_id(match_id, account.region, API_KEY)
-                if game_data is None:
-                    raise Exception() # We handle error messages in the except
-                game_data = game_data.json()
-                game_data_meta = game_data["info"]
-                game_data_participants = game_data["info"]["participants"]
                 match_end_time = upsert_match(
                     session,
                     match_id,
-                    game_data_meta,
-                    game_data_participants,
-                    game_type="SOLOQUEUE",
+                    API_KEY
                 )
-                if not latest_game_set:
+                if not latest_game_set and match_end_time is not None:
                     account.latest_game = match_end_time
                     latest_game_set = True
                 existing_ids.add(match_id)
             except:
-                print(f"Failed to process match {match_id}")
+                print(f"Failed to upsert match {match_id}")
         session.commit()
 
 
 def upsert_match(
     session: _Session,
     match_id: str,
-    game_data_meta,
-    game_data_participants,
+    API_KEY: str,
     force: bool = False,
     game_type: str | None = None,
 ) -> int | None:
@@ -114,32 +101,43 @@ def upsert_match(
     # IF we are not forcing an update, we need to check the game doesn't already exist.
     if match is not None and force == False:
         return None
+    game_data = get_match_by_id(match_id, API_KEY)
+    if game_data is None:
+        return None
+    game_data = game_data.json()
+
     # However, if we *are* forcing an update we will delete the existing records
     if force:
         session.query(Participant).filter(Participant.game_id == match_id).delete()
+        session.query(TeamDto).filter(TeamDto.game_id == match_id).delete()
         session.query(Game).filter(Game.id == match_id).delete()
         session.commit()
 
-    game = process_match_metadata(game_data_meta, match_id, game_type)
+    game_info = game_data["info"]
+    game = Game(**{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO}, **{"id": match_id})
     session.add(game)
     session.flush()
 
     # For some reason, zero duration game's are permitted by GRID. We can not process the match data for these games
     if game.game_duration and game.game_duration > 0:
-        participants = process_match_participants(game, game_data_participants)
+        participants = []
+        game_participants = game_info["participants"]
+        for participant in game_participants:
+            # First we extract the columns defined in the model and the DTOs we're storing
+            participant_dto_columns = {camel_to_snake(k): v for k, v in participant.items() if camel_to_snake(k) in Participant.PARTICIPANT_DTO}
+            stored_dtos = {camel_to_snake(k): participant[snake_to_camel(k)] for k in Participant.STORED_DTOS}
+            # Then, we can remove the already stored keys DTOs
+            for key in Participant.STORED_DTOS + Participant.PARTICIPANT_DTO:
+                del participant[snake_to_camel(key)]
+            # And store
+            participant_dto = {camel_to_snake(k): v for k, v in participant.items()}
+            participant_base = {"game_id": game.id, "game_duration": game.game_duration, "participant": participant_dto}
+            participants.append(Participant(**participant_base, **participant_dto_columns, **stored_dtos))
         session.add_all(participants)
         session.flush()
-    return game_data_meta["gameEndTimestamp"]
-
-
-def process_match_participants(game, game_data_participants) -> list[Participant]:
-    participants = []
-    for participant in game_data_participants:
-        participant_data = parse_participant_dictionary(participant)
-        p = Participant(
-            game_id=game.id,
-            game_duration=game.game_duration,
-            **participant_data,
-        )
-        participants.append(p)
-    return participants
+    try:
+        session.commit()
+        return game.game_end_timestamp
+    except Exception as e:
+        print(f"Something went wrong updating accounts: {str(e)}")
+        session.rollback()

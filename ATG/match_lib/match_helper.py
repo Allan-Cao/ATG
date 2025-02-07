@@ -2,7 +2,6 @@ from typing import Optional
 from ..utils import Side
 from ..models import Game
 
-
 def extract_major_minor_patch(game_version: str) -> str:
     version_parts = game_version.split(".")
     if len(version_parts) >= 2:
