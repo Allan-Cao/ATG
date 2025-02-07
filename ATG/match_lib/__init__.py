@@ -1,6 +1,6 @@
 from .ingest_match import (
     upsert_match_history,
-    update_player_accounts,
+    update_account_names,
     upsert_match,
 )
 from .match_helper import (
@@ -11,7 +11,7 @@ from .match_helper import (
 
 __all__ = [
     "upsert_match_history",
-    "update_player_accounts",
+    "update_account_names",
     "upsert_match",
     "extract_major_minor_patch",
     "parse_participant_dictionary",

@@ -1,7 +1,6 @@
-from sqlalchemy import Integer, Enum, ForeignKey
+from sqlalchemy import Integer, Text, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .base import Base
-from ..utils import Lane
 
 
 class PlayerTeamAssociation(Base):
@@ -10,9 +9,8 @@ class PlayerTeamAssociation(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.id"))
     team_id: Mapped[int] = mapped_column(Integer, ForeignKey("teams.id"))
-    # We use the same naming scheme as the RIOT api (TOP, JUNGLE, MIDDLE, BOTTOM, UTILITY)
-    # This SHOULD be nullable since we are storing the GRID's roster data
-    position: Mapped[str | None] = mapped_column(Enum(Lane), nullable=True)
+    # Although not explicitly enforced, the (TOP, JUNGLE, MIDDLE, BOTTOM, UTILITY) is generally used
+    position: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     team: Mapped["Team"] = relationship("Team", back_populates="player_associations")
 
