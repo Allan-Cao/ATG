@@ -4,44 +4,30 @@ headers = {
     "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
 }
 
-## The americas routing value serves NA, BR, LAN and LAS. The asia routing value serves KR and JP. The europe routing value serves EUNE, EUW, TR and RU. The sea routing value serves OCE, PH2, SG2, TH2, TW2 and VN2.
-routing = {
-    "NA": "americas",
-    "BR": "americas",
-    "LAN": "americas",
-    "LAS": "americas",
+# The AMERICAS routing value serves NA, BR, LAN and LAS. The ASIA routing value serves KR and JP. The EUROPE routing value serves EUNE, EUW, ME1, TR and RU. The SEA routing value serves OCE, SG2, TW2 and VN2.
+platform_routing = {
+    "NA1": "americas",
+    "BR1": "americas",
+    "LA1": "americas",
+    "LA2": "americas",
     "KR": "asia",
     "JP": "asia",
-    "EUNE": "europe",
-    "EUW": "europe",
-    "TR": "europe",
+    "ME1": "europe",
+    "EUN1": "europe",
+    "EUW1": "europe",
+    "TR1": "europe",
     "RU": "europe",
-    "OCE": "sea",
-    "PH2": "sea",
+    "OC1": "sea",
     "SG2": "sea",
-    "TH2": "sea",
     "TW2": "sea",
     "VN2": "sea",
 }
 
-server_string = {
-    "NA": "NA1",
-    "BR": "BR1",
-    "LAN": "LA1",
-    "LAS": "LA2",
-    "KR": "KR",
-    "JP": "JP1",
-    "EUNE": "EUN1",
-    "EUW": "EUW1",
-    "TR": "TR1",
-    "RU": "RU",
-    "OCE": "OC1",
-    "PH2": "PH2",
-    "SG2": "SG2",
-    "TH2": "TH2",
-    "TW2": "TW2",
-    "VN2": "VN2",
-}
+REGIONS = platform_routing.keys()
 
-def get_match_string(region: str, match_id: str) -> str:
-    return f"{server_string[region]}_{match_id}"
+
+def parse_match_id(match_id: str) -> tuple[str, str]:
+    split = match_id.split("_")
+    if len(split) != 2 or split[0] not in platform_routing.keys():
+        raise ValueError("Invalid match_id received")
+    return split[0], split[1]

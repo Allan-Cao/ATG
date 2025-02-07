@@ -1,6 +1,6 @@
 import requests as r
 from requests import Response
-from .utils import headers, routing
+from .utils import headers, platform_routing, parse_match_id
 from ratelimit import limits
 from backoff import on_predicate, runtime
 
@@ -15,17 +15,12 @@ TEN_SECONDS = 10
     jitter=None,
 )
 @limits(calls=MAX_CALLS_PER_TEN_SECONDS, period=TEN_SECONDS)
-def get_match_by_id(
-    match_id: str, region: str, api_key: str, timeline: bool = False
-) -> Response:
-    if region not in routing.keys():
-        raise ValueError(
-            "Invalid region. Expecting NA/EUW/EUNE/KR/BR/LAN/LAS/TR/RU/OCE/JP/SEA"
-        )
+def get_match_by_id(match_id: str, api_key: str, timeline: bool = False) -> Response:
+    region, match = parse_match_id(match_id)
     is_timeline = "/timeline" if timeline else ""
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}",
+        f"https://{platform_routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}",
         headers=_headers,
     )
     return response
@@ -41,7 +36,7 @@ def get_match_by_id(
 def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> Response:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://{routing[region]}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids",
+        f"https://{platform_routing[region]}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids",
         headers=_headers,
         params=kwargs,
     )
