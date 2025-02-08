@@ -12,8 +12,8 @@ class Account(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     # This either the actual PUUID as per the Riot API OR Riot Esports API IDs
     puuid: Mapped[str] = mapped_column(Text, unique=True)
-    name: Mapped[str] = mapped_column(Text)
-    tagline: Mapped[str] = mapped_column(Text)
+    name: Mapped[str] = mapped_column(Text)  # riotIdgameName
+    tagline: Mapped[str] = mapped_column(Text)  # riotIdTagLine
     # Exceptions to the normal Riot API regions include TOURNAMENT (for TR accounts) and RIOT_LOL (for Riot Esports API)
     region: Mapped[str] = mapped_column(Text, nullable=False)
     # Last time / newest game was added to the database (used for match history ingestion)

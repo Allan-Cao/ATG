@@ -16,7 +16,7 @@ class Player(Base):
     # For now, this should be their Leaguepedia disambiguation name
     disambiguation: Mapped[str | None] = mapped_column(Text, unique=True)
     # We store linked IDs (GRID, RIOT_ESPORTS, Discord) in a flexible format
-    associated_ids = mapped_column(JSONB)
+    external_ids = mapped_column(JSONB)
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
