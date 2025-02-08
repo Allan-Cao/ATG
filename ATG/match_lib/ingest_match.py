@@ -42,29 +42,27 @@ def update_account_names(session: _Session, API_KEY: str, days: int = 7):
 
 def upsert_match_history(
     session: _Session,
-    existing_ids: set,
     player: Player,
     API_KEY: str,
     start_time: int = SEASON_START,
+    start_latest: bool = True,
     queue_id: int = 420,
 ):
+    existing_ids = set(id for (id,) in session.query(Game.id).all())
     for account in player.accounts or []:
         if not account.solo_queue_account or account.skip_update:
             continue
-        print(
-            f"Updating match history for {str(account)}"
-        )
+        print(f"Updating match history for {str(account)}")
 
         # To save on API calls, we should insert from season 14 start (for new accounts) or from the last known game.
         # However, startTime requires UNIX timestamps in Seconds while we are storing them in Miliseconds
-        startTime = SEASON_START
-        if account.latest_game is not None:
-            startTime = int(account.latest_game / 1000)
+        if account.latest_game is not None and start_latest:
+            start_time = int(account.latest_game / 1000)
         match_ids = get_match_history(
             account.puuid,
             account.region,
             API_KEY,
-            startTime=startTime,
+            startTime=start_time,
             queue=queue_id,
         )
 
@@ -76,11 +74,7 @@ def upsert_match_history(
         latest_game_set = False
         for match_id in tqdm(new_match_ids):
             try:
-                match_end_time = upsert_match(
-                    session,
-                    match_id,
-                    API_KEY
-                )
+                match_end_time = upsert_match(session, match_id, API_KEY)
                 if not latest_game_set and match_end_time is not None:
                     account.latest_game = match_end_time
                     latest_game_set = True
@@ -88,6 +82,7 @@ def upsert_match_history(
             except:
                 print(f"Failed to upsert match {match_id}")
         session.commit()
+        existing_ids.update(new_match_ids)
 
 
 def upsert_match(
@@ -114,7 +109,9 @@ def upsert_match(
         session.commit()
 
     game_info = game_data["info"]
-    game = Game(**{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO}, **{"id": match_id})
+    game = Game(
+        **{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO}, **{"id": match_id}
+    )
     session.add(game)
     session.flush()
 
@@ -124,20 +121,35 @@ def upsert_match(
         game_participants = game_info["participants"]
         for participant in game_participants:
             # First we extract the columns defined in the model and the DTOs we're storing
-            participant_dto_columns = {camel_to_snake(k): v for k, v in participant.items() if camel_to_snake(k) in Participant.PARTICIPANT_DTO}
-            stored_dtos = {camel_to_snake(k): participant[snake_to_camel(k)] for k in Participant.STORED_DTOS}
+            participant_dto_columns = {
+                camel_to_snake(k): v
+                for k, v in participant.items()
+                if camel_to_snake(k) in Participant.PARTICIPANT_DTO
+            }
+            stored_dtos = {
+                camel_to_snake(k): participant[snake_to_camel(k)]
+                for k in Participant.STORED_DTOS
+            }
             # Then, we can remove the already stored keys DTOs
             for key in Participant.STORED_DTOS + Participant.PARTICIPANT_DTO:
                 del participant[snake_to_camel(key)]
             # And store
             participant_dto = {camel_to_snake(k): v for k, v in participant.items()}
-            participant_base = {"game_id": game.id, "game_duration": game.game_duration, "participant": participant_dto}
-            participants.append(Participant(**participant_base, **participant_dto_columns, **stored_dtos))
+            participant_base = {
+                "game_id": game.id,
+                "game_duration": game.game_duration,
+                "participant": participant_dto,
+            }
+            participants.append(
+                Participant(
+                    **participant_base, **participant_dto_columns, **stored_dtos
+                )
+            )
         session.add_all(participants)
         session.flush()
     try:
         session.commit()
         return game.game_end_timestamp
     except Exception as e:
-        print(f"Something went wrong updating accounts: {str(e)}")
+        print(f"Something went wrong ingesting match {match_id}: {str(e)}")
         session.rollback()
