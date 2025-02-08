@@ -1,9 +1,10 @@
-from SQDBI.models import (
+from ATG.models import (
     Player,
     Account,
     Team,
     PlayerTeamAssociation,
     Game,
+    TeamDto,
     Participant,
     Base,
 )
