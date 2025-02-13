@@ -74,7 +74,12 @@ def upsert_match_history(
         latest_game_set = False
         for match_id in tqdm(new_match_ids):
             try:
-                match_end_time = upsert_match(session, match_id, API_KEY)
+                game_data = get_match_by_id(match_id, API_KEY)
+                if game_data is None:
+                    return None
+                game_data = game_data.json()
+                game_info = game_data["info"]
+                match_end_time = upsert_match(session, match_id, game_data, game_info)
                 if not latest_game_set and match_end_time is not None:
                     account.latest_game = match_end_time
                     latest_game_set = True
@@ -88,19 +93,16 @@ def upsert_match_history(
 def upsert_match(
     session: _Session,
     match_id: str,
-    API_KEY: str,
+    game_data: dict,
+    game_info: dict,
     force: bool = False,
     game_type: str | None = None,
+    tournament_info: dict = {},
 ) -> int | None:
     match = session.query(Game).filter(Game.id == match_id).first()
     # IF we are not forcing an update, we need to check the game doesn't already exist.
     if match is not None and force == False:
         return None
-    game_data = get_match_by_id(match_id, API_KEY)
-    if game_data is None:
-        return None
-    game_data = game_data.json()
-
     # However, if we *are* forcing an update we will delete the existing records
     if force:
         session.query(Participant).filter(Participant.game_id == match_id).delete()
@@ -108,12 +110,21 @@ def upsert_match(
         session.query(Game).filter(Game.id == match_id).delete()
         session.commit()
 
-    game_info = game_data["info"]
     game = Game(
-        **{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO}, **{"id": match_id}
+        **{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO}, **{"id": match_id}, **tournament_info
     )
     session.add(game)
     session.flush()
+
+    for team in game_info['teams']:
+        teamDto = TeamDto(
+            game_id = game.id,
+            bans = team["bans"],
+            objectives = team["objectives"],
+            team_id = team["teamId"],
+            win = team["win"],
+        )
+        session.add(teamDto)
 
     # For some reason, zero duration game's are permitted by GRID. We can not process the match data for these games
     if game.game_duration and game.game_duration > 0:
