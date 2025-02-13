@@ -15,10 +15,8 @@ class Team(Base):
     # We can store GRID, LOL IDs here
     external_ids = mapped_column(JSONB)
 
-    # Additional information provided by GRID
-    logo_url: Mapped[str | None] = mapped_column(Text)
-    colour_primary: Mapped[str | None] = mapped_column(Text)
-    colour_secondary: Mapped[str | None] = mapped_column(Text)
+    # We store additional information in a JSONB blob
+    additional_information = mapped_column(JSONB)
 
     player_associations: Mapped[list["PlayerTeamAssociation"]] = relationship(
         "PlayerTeamAssociation", back_populates="team"
