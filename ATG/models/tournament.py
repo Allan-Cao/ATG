@@ -22,5 +22,8 @@ class Tournament(Base):
     start_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     end_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
+    # External IDs can be stored here
+    external_ids = mapped_column(JSONB)
+
     # Additional tournament information can be stored here
     additional_details = mapped_column(JSONB)
