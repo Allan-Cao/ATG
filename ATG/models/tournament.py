@@ -23,4 +23,4 @@ class Tournament(Base):
     end_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Additional tournament information can be stored here
-    tournament_details = mapped_column(JSONB)
+    additional_details = mapped_column(JSONB)
