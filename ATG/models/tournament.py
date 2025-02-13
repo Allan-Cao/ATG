@@ -17,6 +17,9 @@ class Tournament(Base):
     year: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     league: Mapped[str | None] = mapped_column(Text, nullable=True)
     split: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Similar to the playoffs boolean from OracleElixer, however we can store the
+    # additional tournament tag grid gives us inside brackets
+    event_type: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # For now, these are generally NULL, in the future we should automatically set based on first/last games
     start_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
