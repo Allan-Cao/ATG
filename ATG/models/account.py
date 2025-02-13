@@ -30,6 +30,10 @@ class Account(Base):
     def solo_queue_account(self) -> bool:
         return self.region in REGIONS
 
+    @solo_queue_account.expression
+    def solo_queue_account(cls):
+        return cls.region.in_(REGIONS)
+
     player: Mapped["Player"] = relationship("Player", back_populates="accounts")
 
     def __repr__(self) -> str:
