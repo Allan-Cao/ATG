@@ -48,7 +48,6 @@ def upsert_match_history(
     start_latest: bool = True,
     queue_id: int = 420,
 ):
-    existing_ids = set(id for (id,) in session.query(Game.id).all())
     for account in player.accounts or []:
         if not account.solo_queue_account or account.skip_update:
             continue
@@ -66,7 +65,11 @@ def upsert_match_history(
             queue=queue_id,
         )
 
-        new_match_ids = set(match_ids) - existing_ids
+        existing_in_batch = {
+            id for (id,) in session.query(Game.id).filter(Game.id.in_(match_ids)).all()
+        }
+        new_match_ids = [mid for mid in match_ids if mid not in existing_in_batch]
+
         if len(new_match_ids) == 0:
             print("All up to date!")
             continue
@@ -83,11 +86,9 @@ def upsert_match_history(
                 if not latest_game_set and match_end_time is not None:
                     account.latest_game = match_end_time
                     latest_game_set = True
-                existing_ids.add(match_id)
-            except:
-                print(f"Failed to upsert match {match_id}")
+            except Exception as e:
+                print(f"Failed to upsert match {match_id}: {str(e)}")
         session.commit()
-        existing_ids.update(new_match_ids)
 
 
 def upsert_match(
@@ -111,18 +112,20 @@ def upsert_match(
         session.commit()
 
     game = Game(
-        **{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO}, **{"id": match_id}, **tournament_info
+        **{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO},
+        **{"id": match_id},
+        **tournament_info,
     )
     session.add(game)
     session.flush()
 
-    for team in game_info['teams']:
+    for team in game_info["teams"]:
         teamDto = TeamDto(
-            game_id = game.id,
-            bans = team["bans"],
-            objectives = team["objectives"],
-            team_id = team["teamId"],
-            win = team["win"],
+            game_id=game.id,
+            bans=team["bans"],
+            objectives=team["objectives"],
+            team_id=team["teamId"],
+            win=team["win"],
         )
         session.add(teamDto)
 
