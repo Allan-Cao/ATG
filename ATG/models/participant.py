@@ -1,5 +1,6 @@
 from sqlalchemy import ForeignKey, Text, Integer, Boolean, DateTime, Float, func
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, MappedColumn
 from datetime import datetime
 from .base import Base
@@ -49,6 +50,18 @@ class Participant(Base):
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    @hybrid_property
+    def riot_name(self):
+        return f"{self.riot_id_game_name}#{self.riot_id_tagline}"
+
+    @riot_name.expression
+    def riot_name(cls):
+        return func.concat(
+            cls.riot_id_game_name,
+            "#",
+            cls.riot_id_tagline
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
