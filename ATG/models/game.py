@@ -35,6 +35,8 @@ class Game(Base):
     # Tournament Game Information
     tournament_id: Mapped[int | None] = mapped_column(ForeignKey("tournaments.id"))
     tournament_game_number: Mapped[int | None] = mapped_column(Integer)
+    # GRID Game Information
+    series_id: Mapped[str | None] = mapped_column(Text)
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
