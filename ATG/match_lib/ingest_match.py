@@ -48,6 +48,7 @@ def upsert_match_history(
     start_latest: bool = True,
     queue_id: int = 420,
 ):
+    existing_ids = set(session.scalars(select(Game.id)).all())
     for account in player.accounts or []:
         if not account.solo_queue_account or account.skip_update:
             continue
@@ -64,11 +65,7 @@ def upsert_match_history(
             startTime=start_time,
             queue=queue_id,
         )
-
-        existing_in_batch = {
-            id for (id,) in session.query(Game.id).filter(Game.id.in_(match_ids)).all()
-        }
-        new_match_ids = [mid for mid in match_ids if mid not in existing_in_batch]
+        new_match_ids = set(match_ids) - existing_ids
 
         if len(new_match_ids) == 0:
             print("All up to date!")
@@ -86,6 +83,7 @@ def upsert_match_history(
                 if not latest_game_set and match_end_time is not None:
                     account.latest_game = match_end_time
                     latest_game_set = True
+                existing_ids.add(match_id)
             except Exception as e:
                 print(f"Failed to upsert match {match_id}: {str(e)}")
         session.commit()
