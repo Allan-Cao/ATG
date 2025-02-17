@@ -1,11 +1,11 @@
-python-dotenv
 requests
 SQLAlchemy
-psycopg2-binary
 ratelimit
+psycopg[binary]
 tqdm
 backoff
 
-# General Development Libraries
+# Optional libraries
+python-dotenv
 alembic
 black

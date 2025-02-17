@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name="ATG",
-    version="1.0.5.6",
+    version="1.0.5.7",
     packages=find_packages(include=["ATG", "ATG.*"]),
     install_requires=[
         "SQLAlchemy",
         "tqdm",
         "backoff",
-        "psycopg2",
+        "psycopg[binary]",
         "ratelimit",
         "requests",
     ],
