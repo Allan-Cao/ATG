@@ -1,4 +1,5 @@
-from sqlalchemy import Integer, Text, ForeignKey
+from sqlalchemy import Integer, Text, ForeignKey, DateTime, func
+from datetime import datetime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
@@ -16,3 +17,5 @@ class GameEvent(Base):
 
     # This field flexibly stores the rest of the relevant fields
     additional_details = mapped_column(JSONB)
+    # Debug
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())

@@ -32,11 +32,12 @@ class Game(Base):
     participants: Mapped[list["Participant"]] = relationship()
     # TeamDto
     teams: Mapped[list["TeamDto"]] = relationship()
+
     # Tournament Game Information
-    tournament_id: Mapped[int | None] = mapped_column(ForeignKey("tournaments.id"))
-    tournament_game_number: Mapped[int | None] = mapped_column(Integer)
-    # GRID Game Information
-    series_id: Mapped[str | None] = mapped_column(Text)
+    tournament_id: Mapped[int | None] = mapped_column(ForeignKey("tournaments.id"), nullable=True)
+    # Esports Game Information (GRID)
+    series_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    series_game_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
