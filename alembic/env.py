@@ -1,13 +1,4 @@
-from ATG.models import (
-    Player,
-    Account,
-    Team,
-    PlayerTeamAssociation,
-    Game,
-    TeamDto,
-    Participant,
-    Base,
-)
+from ATG.models import *
 
 from logging.config import fileConfig
 

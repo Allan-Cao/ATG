@@ -27,12 +27,9 @@ def update_account_names(session: _Session, API_KEY: str, days: int = 7):
         return
     for account in tqdm(accounts_to_update):
         account_details = get_account_by_puuid(account.puuid, API_KEY)
-        if account_details is None:
-            print(f"No account details found for PUUID: {account.puuid}")
-            continue
         account_details = account_details.json()
-        account.name = account_details.get("gameName")
-        account.tagline = account_details.get("tagLine")
+        account.name = account_details["gameName"]
+        account.tagline = account_details["tagLine"]
     try:
         session.commit()
     except Exception as e:

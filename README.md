@@ -1,6 +1,6 @@
 # ATG - All The Games
 
-Opinionated but flexible library of database models and scripts to store solo queue / competitive player data tailored for LoL Esports.
+Opinionated but flexible library of database models and scripts to store solo queue / competitive player and game data tailored for LoL Esports.
 
 #### Verson 1.0
 As of version 1.0, PostgreSQL is the required database backend since JSONB columns are extensively used to easily store game stats while minimizing schema changes.
@@ -9,14 +9,16 @@ Although I've decided to use a version number >= 1, do expect schema changes and
 
 
 ## Features
-- Ratelimited functions to access Riot & GRID APIs with smart region handling
+- Functions to access Riot & GRID APIs with smart region handling
 - SQLAlchemy database models compatible with both solo queue & esports games
+- Database models to store riot game event JSONL files
 - Ability to store complete Match-V5 JSON objects
 - Scripts to insert/manage solo queue accounts & store new solo queue games
 
 ## Todo
+- Remove the usage of `ratelimit` in favor of something that actually does stable rate limiting
 - Properly handle API error codes
-- Handle database sessions better using dependency injection or something other than passing session objects around.
+- Handle database sessions and API keys better using dependency injection or something other than passing session objects around.
 - Add the ability to store draft / other available esports game information
 - Open source GRID API code and GRID insertion scripts
 
