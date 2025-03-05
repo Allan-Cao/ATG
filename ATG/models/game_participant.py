@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Text, ForeignKey, DateTime, func
+from sqlalchemy import Integer, Text, ForeignKey, DateTime, func, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from .base import Base
@@ -17,6 +17,7 @@ class GameParticipant(Base):
     # Not sure what this is, assuming it's a Riot account ID
     account_id: Mapped[str] = mapped_column(Text)
     side: Mapped[int] = mapped_column(Integer) # 100 for blue, 200 for red
+    win: Mapped[bool] = mapped_column(Boolean)
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())

@@ -107,7 +107,7 @@ def upsert_match(
         session.commit()
 
     game = Game(
-        **{k: game_info[snake_to_camel(k)] for k in Game.INFO_DTO},
+        **{k: game_info.get(snake_to_camel(k)) for k in Game.INFO_DTO},
         **{"id": match_id},
         **tournament_info,
     )

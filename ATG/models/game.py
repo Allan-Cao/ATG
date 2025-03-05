@@ -1,6 +1,7 @@
 from sqlalchemy import ForeignKey, Text, Integer, BigInteger, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship, MappedColumn
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 from .base import Base
 
@@ -8,20 +9,20 @@ from .base import Base
 class Game(Base):
     __tablename__ = "games"
     # InfoDto
-    end_of_game_result: Mapped[str] = mapped_column(Text)
-    game_creation: Mapped[int] = mapped_column(BigInteger)
-    game_duration: Mapped[int] = mapped_column(Integer)  # in seconds
-    game_end_timestamp: Mapped[int] = mapped_column(BigInteger)
-    game_id: Mapped[int] = mapped_column(BigInteger)  # Riot's game id
-    game_mode: Mapped[str] = mapped_column(Text)
-    game_name: Mapped[str] = mapped_column(Text)
-    game_start_timestamp: Mapped[int] = mapped_column(BigInteger)
-    game_type: Mapped[str] = mapped_column(Text)
-    game_version: Mapped[str] = mapped_column(Text) # Riot game version
-    map_id: Mapped[int] = mapped_column(Integer)
-    platform_id: Mapped[str] = mapped_column(Text)  # e.g. EUW1
-    queue_id: Mapped[int] = mapped_column(Integer)
-    tournament_code: Mapped[str] = mapped_column(Text)
+    end_of_game_result: Mapped[str | None] = mapped_column(Text, nullable=True)
+    game_creation: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    game_duration: Mapped[int | None] = mapped_column(Integer, nullable=True)  # in seconds
+    game_end_timestamp: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    game_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)  # Riot's game id
+    game_mode: Mapped[str | None] = mapped_column(Text, nullable=True)
+    game_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    game_start_timestamp: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    game_type: Mapped[str | None] = mapped_column(Text, nullable=True)
+    game_version: Mapped[str | None] = mapped_column(Text, nullable=True) # Riot game version
+    map_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    platform_id: Mapped[str | None] = mapped_column(Text, nullable=True)  # e.g. EUW1
+    queue_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    tournament_code: Mapped[str | None] = mapped_column(Text, nullable=True)
     INFO_DTO = [name for name, value in locals().items() if isinstance(value, MappedColumn)]
 
     # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
@@ -33,6 +34,8 @@ class Game(Base):
     # TeamDto
     teams: Mapped[list["TeamDto"]] = relationship()
 
+    # We can store additional info flexibly here
+    additional_details = mapped_column(JSONB)
     # Tournament Game Information
     tournament_id: Mapped[int | None] = mapped_column(ForeignKey("tournaments.id"), nullable=True)
     # Esports Game Information (GRID)
