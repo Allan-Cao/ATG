@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Text, Integer, DateTime
+from sqlalchemy import Text, Integer, DateTime, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.types import SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column
@@ -30,3 +30,6 @@ class Tournament(Base):
 
     # Additional tournament information can be stored here
     additional_details = mapped_column(JSONB)
+
+    # Debug
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
