@@ -30,6 +30,7 @@ def update_account_names(session: _Session, API_KEY: str, days: int = 7):
         account_details = account_details.json()
         account.name = account_details["gameName"]
         account.tagline = account_details["tagLine"]
+        account.updated = datetime.now()
     try:
         session.commit()
     except Exception as e:
