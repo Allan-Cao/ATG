@@ -4,7 +4,6 @@ from .champion import Champion
 from .draft_event import DraftEvent
 from .game import Game
 from .game_event import GameEvent
-from .game_participant import GameParticipant
 from .player import Player
 from .participant import Participant
 from .player_team_association import PlayerTeamAssociation
@@ -19,7 +18,6 @@ __all__ = [
     "DraftEvent",
     "Game",
     "GameEvent",
-    "GameParticipant",
     "Player",
     "Participant",
     "PlayerTeamAssociation",
