@@ -9,28 +9,32 @@ from .base import Base
 class Participant(Base):
     __tablename__ = "participants"
     # ParticipantDto
-    assists: Mapped[int] = mapped_column(Integer)
-    champion_id: Mapped[int] = mapped_column(Integer)
+    assists: Mapped[int | None] = mapped_column(Integer)
+    champion_id: Mapped[int] = mapped_column(Integer, ForeignKey("champions.id"))
+    # Eventually, this should be removed in favor of champion id
     champion_name: Mapped[str] = mapped_column(Text)
-    deaths: Mapped[int] = mapped_column(Integer)
-    game_ended_in_early_surrender: Mapped[bool] = mapped_column(Boolean)
-    game_ended_in_surrender: Mapped[bool] = mapped_column(Boolean)
-    kills: Mapped[int] = mapped_column(Integer)
-    puuid: Mapped[str] = mapped_column(Text)
+    deaths: Mapped[int | None] = mapped_column(Integer)
+    # Eventually these two should be moved into game since they appear to be consistant across all participants
+    game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean)
+    game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean)
+    kills: Mapped[int | None] = mapped_column(Integer)
+    puuid: Mapped[str | None] = mapped_column(Text)
     riot_id_game_name: Mapped[str] = mapped_column(Text)
     riot_id_tagline: Mapped[str] = mapped_column(Text)
-    summoner_id: Mapped[str] = mapped_column(Text)
-    summoner_name: Mapped[str] = mapped_column(Text)
+    summoner_id: Mapped[str | None] = mapped_column(Text)
+    summoner_name: Mapped[str | None] = mapped_column(Text)
     team_id: Mapped[int] = mapped_column(Integer)
-    team_position: Mapped[str] = mapped_column(Text)
-    win: Mapped[bool] = mapped_column(Boolean)
+    team_position: Mapped[str | None] = mapped_column(Text)
+    win: Mapped[bool | None] = mapped_column(Boolean)
     # Calculated stats (will likely remove in the future)
-    total_minions_killed: Mapped[int] = mapped_column(Integer)
-    neutral_minions_killed: Mapped[int] = mapped_column(Integer)
+    total_minions_killed: Mapped[int | None] = mapped_column(Integer)
+    neutral_minions_killed: Mapped[int | None] = mapped_column(Integer)
+    participant_id: Mapped[int] = mapped_column(Integer)
     # Automatically generate the stored_keys
     PARTICIPANT_DTO = [name for name, value in locals().items() if isinstance(value, MappedColumn)]
 
     # We need to move these declarations below the auto generation
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     game_id: Mapped[str] = mapped_column(Text, ForeignKey("games.id"))
     game_duration: Mapped[int] = mapped_column(Integer)  # in seconds
