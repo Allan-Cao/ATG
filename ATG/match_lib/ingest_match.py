@@ -52,10 +52,23 @@ def upsert_match_history(
             continue
         print(f"Updating match history for {str(account)}")
 
-        # To save on API calls, we should insert from season 14 start (for new accounts) or from the last known game.
-        # However, startTime requires UNIX timestamps in Seconds while we are storing them in Miliseconds
-        if account.latest_game is not None and start_latest:
-            start_time = int(account.latest_game / 1000)
+        if start_latest:
+            latest_game_query = (
+                select(Game.game_end_timestamp)
+                .join(Participant, Participant.game_id == Game.id)
+                .where(
+                    and_(Participant.puuid == account.puuid, Game.queue_id == queue_id)
+                )
+                .order_by(Game.game_end_timestamp.desc())
+                .limit(1)
+            )
+
+            latest_game_timestamp = session.scalar(latest_game_query)
+
+            if latest_game_timestamp is None:
+                start_time = SEASON_START
+            else:
+                start_time = int(latest_game_timestamp / 1000)
         match_ids = get_match_history(
             account.puuid,
             account.region,
