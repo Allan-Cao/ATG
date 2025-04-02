@@ -1,20 +1,10 @@
 import requests as r
 from requests import Response
 from .utils import headers
-from ratelimit import limits
-from backoff import on_predicate, runtime
-
-MAX_CALLS_PER_MINUTE = 1600
-MINUTE = 60
+from ..rate_limiter import riot_api_limiter
 
 
-@on_predicate(
-    runtime,
-    predicate=lambda r: r.status_code == 429,
-    value=lambda r: int(r.headers.get("Retry-After")),
-    jitter=None,
-)
-@limits(calls=MAX_CALLS_PER_MINUTE, period=MINUTE)
+@riot_api_limiter(endpoint_key="summoner_v4_by_account")
 def get_summoner_by_account(account_id: str, region: str, api_key: str, **kwargs) -> Response:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
@@ -24,13 +14,7 @@ def get_summoner_by_account(account_id: str, region: str, api_key: str, **kwargs
     )
     return response
 
-@on_predicate(
-    runtime,
-    predicate=lambda r: r.status_code == 429,
-    value=lambda r: int(r.headers.get("Retry-After")),
-    jitter=None,
-)
-@limits(calls=MAX_CALLS_PER_MINUTE, period=MINUTE)
+@riot_api_limiter(endpoint_key="summoner_v4_by_puuid")
 def get_summoner_by_puuid(puuid: str, region: str, api_key: str, **kwargs) -> Response:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
@@ -40,13 +24,7 @@ def get_summoner_by_puuid(puuid: str, region: str, api_key: str, **kwargs) -> Re
     )
     return response
 
-@on_predicate(
-    runtime,
-    predicate=lambda r: r.status_code == 429,
-    value=lambda r: int(r.headers.get("Retry-After")),
-    jitter=None,
-)
-@limits(calls=MAX_CALLS_PER_MINUTE, period=MINUTE)
+@riot_api_limiter(endpoint_key="summoner_v4_by_summoner_id")
 def get_summoner_by_summoner_id(summoner_id: str, region: str, api_key: str, **kwargs) -> Response:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(

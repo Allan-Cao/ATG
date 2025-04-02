@@ -1,18 +1,10 @@
 import requests as r
 from requests import Response
 from .utils import headers, platform_routing, parse_match_id
-import backoff
-import time
+from ..rate_limiter import riot_api_limiter
 
-# @on_predicate(
-#     runtime,
-#     predicate=lambda r: r.status_code == 429,
-#     value=lambda r: int(r.headers.get("Retry-After")),
-#     jitter=None,
-# )
-@backoff.on_predicate(backoff.expo, predicate=lambda r: r.status_code == 429, max_tries=8)
+@riot_api_limiter(endpoint_key="match_v5_by_id")
 def get_match_by_id(match_id: str, api_key: str, timeline: bool = False) -> Response:
-    time.sleep(200/120)
     region, match = parse_match_id(match_id)
     is_timeline = "/timeline" if timeline else ""
     _headers = {"X-Riot-Token": api_key, **headers}
@@ -23,15 +15,8 @@ def get_match_by_id(match_id: str, api_key: str, timeline: bool = False) -> Resp
     return response
 
 
-# @on_predicate(
-#     runtime,
-#     predicate=lambda r: r.status_code == 429,
-#     value=lambda r: int(r.headers.get("Retry-After")),
-#     jitter=None,
-# )
-@backoff.on_predicate(backoff.expo, predicate=lambda r: r.status_code == 429, max_tries=8)
+@riot_api_limiter(endpoint_key="match_v5_available_matches")
 def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> Response:
-    time.sleep(200/120)
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
         f"https://{platform_routing[region]}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids",

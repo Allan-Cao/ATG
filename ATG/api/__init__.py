@@ -4,6 +4,7 @@ from .spectator_v5 import get_active_games
 from .summoner_v4 import get_summoner_by_account, get_summoner_by_puuid, get_summoner_by_summoner_id
 from .utils import parse_match_id, REGIONS
 from .grid_api import get_grid_riot_summary
+from .ddragon import get_ddragon_versions
 
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "get_match_history",
     "get_grid_riot_summary",
     "get_active_games",
+    "get_ddragon_versions",
     "parse_match_id",
     "get_summoner_by_account",
     "get_summoner_by_puuid",

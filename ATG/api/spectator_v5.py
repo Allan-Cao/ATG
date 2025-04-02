@@ -1,20 +1,10 @@
 import requests as r
 from requests import Response
 from .utils import headers
-from ratelimit import limits
-from backoff import on_predicate, runtime
-
-MAX_CALLS_PER_TEN_SECONDS = 2000
-TEN_SECONDS = 10
+from ..rate_limiter import riot_api_limiter
 
 
-@on_predicate(
-    runtime,
-    predicate=lambda r: r.status_code == 429,
-    value=lambda r: int(r.headers.get("Retry-After")),
-    jitter=None,
-)
-@limits(calls=MAX_CALLS_PER_TEN_SECONDS, period=TEN_SECONDS)
+@riot_api_limiter(endpoint_key="spectator_v5_active_games")
 def get_active_games(puuid: str, region: str, api_key: str, **kwargs) -> Response:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
