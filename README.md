@@ -16,11 +16,11 @@ Although I've decided to use a version number >= 1, do expect schema changes and
 - Scripts to insert/manage solo queue accounts & store new solo queue games
 
 ## Todo
-- Remove the usage of `ratelimit` in favor of something that actually does stable rate limiting
-- Properly handle API error codes
-- Handle database sessions and API keys better using dependency injection or something other than passing session objects around.
-- Add the ability to store draft / other available esports game information
-- Open source GRID API code and GRID insertion scripts
+- [x] Remove the usage of `ratelimit` in favor of something that actually does stable rate limiting
+- [x] Properly handle API error codes
+- [ ] Handle database sessions and API keys better using dependency injection or something other than passing session objects around.
+- [x] Add the ability to store draft / other available esports game information
+- [x] Open source GRID API code and GRID insertion scripts
 
 ## Setup & Example Usage
 
