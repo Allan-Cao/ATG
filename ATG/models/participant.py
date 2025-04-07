@@ -37,7 +37,7 @@ class Participant(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     game_id: Mapped[str] = mapped_column(Text, ForeignKey("games.id"))
-    game_duration: Mapped[int] = mapped_column(Integer)  # in seconds
+    game_duration: Mapped[int | None] = mapped_column(Integer)  # in seconds
 
     # Calculated stats
     kda: Mapped[float | None] = mapped_column(Float)
