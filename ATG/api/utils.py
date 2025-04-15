@@ -23,6 +23,7 @@ platform_routing = {
     "VN2": "sea",
 }
 
+QUEUES = ["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"]
 REGIONS = platform_routing.keys()
 
 
