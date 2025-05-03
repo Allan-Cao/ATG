@@ -1,32 +1,37 @@
 import requests as r
 from requests import Response
-from .utils import headers, platform_routing, parse_match_id
+from .utils import headers, PLATFORM_ROUTING, parse_match_id, RegionLiteral
 from ..rate_limiter import riot_api_limiter
+
 
 @riot_api_limiter(endpoint_key="match_v5_by_id")
 def get_match_by_id(match_id: str, api_key: str, timeline: bool = False) -> Response:
-    region, match = parse_match_id(match_id)
+    region, _ = parse_match_id(match_id)
     is_timeline = "/timeline" if timeline else ""
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://{platform_routing[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}",
+        f"https://{PLATFORM_ROUTING[region]}.api.riotgames.com/lol/match/v5/matches/{match_id}{is_timeline}",
         headers=_headers,
     )
     return response
 
 
 @riot_api_limiter(endpoint_key="match_v5_available_matches")
-def get_available_matches(puuid: str, region: str, api_key: str, **kwargs) -> Response:
+def get_available_matches(
+    puuid: str, region: RegionLiteral, api_key: str, **kwargs
+) -> Response:
     _headers = {"X-Riot-Token": api_key, **headers}
     response = r.get(
-        f"https://{platform_routing[region]}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids",
+        f"https://{PLATFORM_ROUTING[region]}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids",
         headers=_headers,
         params=kwargs,
     )
     return response
 
 
-def get_match_history(puuid: str, region: str, api_key: str, **kwargs) -> list[str]:
+def get_match_history(
+    puuid: str, region: RegionLiteral, api_key: str, **kwargs
+) -> list[str]:
     start = 0
     count = 100
     match_history = []
