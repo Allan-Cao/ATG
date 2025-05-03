@@ -8,7 +8,6 @@ Notebooks/
 # Secrets
 *.env
 client_secret.json
-alembic.ini
 
 # Database files
 data/
