@@ -1,12 +1,6 @@
 # ATG - All The Games
 
-Opinionated but flexible library of database models and scripts to store solo queue / competitive player and game data tailored for LoL Esports.
-
-#### Verson 1.0
-As of version 1.0, PostgreSQL is the required database backend since JSONB columns are extensively used to easily store game stats while minimizing schema changes.
-
-Although I've decided to use a version number >= 1, do expect schema changes and functionality to break at any point. With the use of JSONB columns, the core schema and functionality of the library, storing Match-V5 JSONs/Riot "summary" files and accounts linked to players will remain stable. However, expect changes to the esports tournament/draft models as I look to add support for saving drafts / additional match information.
-
+Opinionated but flexible library of database models and scripts and APIs to store solo queue / competitive games, player, team and game data tailored for LoL Esports.
 
 ## Features
 - Functions to access Riot & GRID APIs with smart region handling
@@ -15,12 +9,29 @@ Although I've decided to use a version number >= 1, do expect schema changes and
 - Ability to store complete Match-V5 JSON objects
 - Scripts to insert/manage solo queue accounts & store new solo queue games
 
+## 1.X Release Notes
+As of version 1.X, PostgreSQL is the **required** database backend due to the use of JSONB columns which are declared using the `sqlalchemy.dialects.postgresql.JSONB` datatype.
+
+I have decided to bump the major version since this library is mature enough for my production needs *however* expect extensive schema changes as I look to fully mature my database models.
+
+Although naming initially reflects the match-v5 API's choices and the terminology used by GRID esports, I've had to make some changes.
+
+Here is are the major differences I have decided on.
+
+| Key used | Meaning | Examples |
+| --- | --- | --- |
+| Side  | Blue/Red  | 100 - Blue, 200 - Red |
+| Series  | A collection of related games | series_id = "match_id" |
+
 ## Todo
 - [x] Remove the usage of `ratelimit` in favor of something that actually does stable rate limiting
 - [x] Properly handle API error codes
-- [ ] Handle database sessions and API keys better using dependency injection or something other than passing session objects around.
 - [x] Add the ability to store draft / other available esports game information
 - [x] Open source GRID API code and GRID insertion scripts
+- [ ] Handle database sessions and API keys better using dependency injection or something other than passing session objects around
+- [ ] Normalize database objects
+- [ ] Reduce the number of nullable columns where possible.
+- [ ] Introduce enums where appropriate
 
 ## Setup & Example Usage
 
@@ -31,7 +42,7 @@ Setup dependencies
 pip install -r requirements.txt
 ```
 
-Edit the .env file with your Riot API key and database connection string. The [psycopg3 database driver](https://www.psycopg.org/psycopg3/docs/basic/install.html) is installed and recommended.
+Edit the .env file with your Riot API key and database connection string. The [psycopg3 database driver](https://www.psycopg.org/psycopg3/docs/basic/install.html) is installed if this code is installed as a library and is recommended.
 
 ```bash
 python main.py
