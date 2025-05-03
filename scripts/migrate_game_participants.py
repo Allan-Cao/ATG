@@ -1,3 +1,5 @@
+# Created with the assistance of Claude 3.5
+
 import sys
 
 sys.path.append("..")
@@ -5,10 +7,6 @@ sys.path.append("..")
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
-import pandas as pd
-import requests as r
-import json
 
 from sqlalchemy import *
 from tqdm import tqdm
@@ -19,7 +17,7 @@ from ATG.models import *
 from ATG.api import *
 
 RIOT_API = os.environ["RIOT_API"]
-Session = get_session_factory(os.environ["PROD_DB"])
+Session = get_session_factory(os.environ["DB_CONNECTION"])
 
 role_map = {
     1: "TOP",
@@ -34,6 +32,7 @@ role_map = {
     10: "UTILITY",
 
 }
+
 with Session() as session:
     old_participants = session.scalars(select(GameParticipant)).all()
     print(f"Found {len(old_participants)} GameParticipant objects to migrate")
@@ -104,7 +103,7 @@ with Session() as session:
                 team_id=old_part.side,
                 participant_id=old_part.participant_id,
 
-                riot_id_game_name=player_name,
+                riot_id_game_name=old_part.display_name,
                 riot_id_tagline="eProd",
                 summoner_id=old_part.account_id,
                 summoner_name=old_part.display_name,
