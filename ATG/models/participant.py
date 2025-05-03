@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Text, Integer, Boolean, DateTime, Float, func
+from sqlalchemy import ForeignKey, Text, Integer, Boolean, DateTime, Float, func, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, MappedColumn
@@ -31,7 +31,9 @@ class Participant(Base):
     neutral_minions_killed: Mapped[int | None] = mapped_column(Integer)
     participant_id: Mapped[int] = mapped_column(Integer)
     # Automatically generate the stored_keys
-    PARTICIPANT_DTO = [name for name, value in locals().items() if isinstance(value, MappedColumn)]
+    PARTICIPANT_DTO = [
+        name for name, value in locals().items() if isinstance(value, MappedColumn)
+    ]
 
     # We need to move these declarations below the auto generation
 
@@ -48,7 +50,11 @@ class Participant(Base):
     challenges = mapped_column(JSONB)
     missions = mapped_column(JSONB)
     perks = mapped_column(JSONB)
-    STORED_DTOS = [name for name, value in locals().items() if isinstance(value, MappedColumn) and isinstance(value.column.type, JSONB)]
+    STORED_DTOS = [
+        name
+        for name, value in locals().items()
+        if isinstance(value, MappedColumn) and isinstance(value.column.type, JSONB)
+    ]
     # We store the ParticipantDto - the above stored JSONs here
     participant = mapped_column(JSONB)
 
@@ -61,11 +67,7 @@ class Participant(Base):
 
     @riot_name.expression
     def riot_name(cls):
-        return func.concat(
-            cls.riot_id_game_name,
-            "#",
-            cls.riot_id_tagline
-        )
+        return func.concat(cls.riot_id_game_name, "#", cls.riot_id_tagline)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,10 +83,7 @@ class Participant(Base):
         return self.kills + self.assists
 
     def calculate_total_cs(self) -> int | None:
-        if (
-            self.total_minions_killed is None
-            or self.neutral_minions_killed is None
-        ):
+        if self.total_minions_killed is None or self.neutral_minions_killed is None:
             return None
         return self.total_minions_killed + self.neutral_minions_killed
 
@@ -99,3 +98,9 @@ class Participant(Base):
 
     def __repr__(self):
         return f"{self.game_id}-{self.riot_id_game_name}#{self.riot_id_tagline} on {self.champion_name}"
+
+    __table_args__ = (
+        Index("idx_participants_game_id", "game_id"),
+        Index("idx_participants_puuid", "puuid"),
+        Index("idx_participants_puuid_queue", "puuid", postgresql_include=["game_id"]),
+    )

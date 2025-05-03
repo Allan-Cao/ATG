@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Text, ForeignKey, DateTime, func
+from sqlalchemy import Integer, Text, ForeignKey, DateTime, func, Index
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -19,3 +19,14 @@ class GameEvent(Base):
     additional_details = mapped_column(JSONB)
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    __table_args__ = (
+        Index("idx_game_events_game_id", "game_id"),
+        Index("idx_game_events_game_id_game_time", "game_id", "game_time"),
+        Index("idx_game_events_game_id_schema", "game_id", "schema"),
+        Index(
+            "idx_game_events_game_id_schema_seq", "game_id", "schema", "sequence_index"
+        ),
+        Index("idx_game_events_game_id_schema_time", "game_id", "schema", "game_time"),
+        Index("idx_game_events_schema", "schema"),
+    )
