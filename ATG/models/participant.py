@@ -9,27 +9,31 @@ from .base import Base
 class Participant(Base):
     __tablename__ = "participants"
     # ParticipantDto
-    assists: Mapped[int | None] = mapped_column(Integer)
+    # An exception to the Obj_id foreign key naming is participant_id which referes to the relative ID
+    # of the participant to other participants in a game.
+    participant_id: Mapped[int] = mapped_column(Integer)
     champion_id: Mapped[int] = mapped_column(Integer, ForeignKey("champions.id"))
-    # Eventually, this should be removed in favor of champion id
-    champion_name: Mapped[str] = mapped_column(Text)
-    deaths: Mapped[int | None] = mapped_column(Integer)
-    # Eventually these two should be moved into game since they appear to be consistant across all participants
-    game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean)
-    game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean)
-    kills: Mapped[int | None] = mapped_column(Integer)
     puuid: Mapped[str | None] = mapped_column(Text)
     riot_id_game_name: Mapped[str] = mapped_column(Text)
     riot_id_tagline: Mapped[str] = mapped_column(Text)
     summoner_id: Mapped[str | None] = mapped_column(Text)
     summoner_name: Mapped[str | None] = mapped_column(Text)
-    team_id: Mapped[int] = mapped_column(Integer)
     team_position: Mapped[str | None] = mapped_column(Text)
-    win: Mapped[bool | None] = mapped_column(Boolean)
+    team_id: Mapped[int] = mapped_column(Integer) # RENAME
+
+    # Stats to be moved into participant_stat
+    kills: Mapped[int | None] = mapped_column(Integer) # REMOVE
+    deaths: Mapped[int | None] = mapped_column(Integer)  # REMOVE
+    assists: Mapped[int | None] = mapped_column(Integer) # REMOVE
+    # Eventually, this should be removed in favor of champion id
+    champion_name: Mapped[str] = mapped_column(Text) # REMOVE
+    # Eventually these two should be moved into game since they appear to be consistant across all participants
+    game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean) # REMOVE
+    game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean) # REMOVE
+    win: Mapped[bool | None] = mapped_column(Boolean) # REMOVE
     # Calculated stats (will likely remove in the future)
-    total_minions_killed: Mapped[int | None] = mapped_column(Integer)
-    neutral_minions_killed: Mapped[int | None] = mapped_column(Integer)
-    participant_id: Mapped[int] = mapped_column(Integer)
+    total_minions_killed: Mapped[int | None] = mapped_column(Integer) # REMOVE
+    neutral_minions_killed: Mapped[int | None] = mapped_column(Integer) # REMOVE
     # Automatically generate the stored_keys
     PARTICIPANT_DTO = [
         name for name, value in locals().items() if isinstance(value, MappedColumn)
@@ -39,12 +43,12 @@ class Participant(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     game_id: Mapped[str] = mapped_column(Text, ForeignKey("games.id"))
-    game_duration: Mapped[int | None] = mapped_column(Integer)  # in seconds
+    game_duration: Mapped[int | None] = mapped_column(Integer)  # in seconds (REMOVE)
 
     # Calculated stats
-    kda: Mapped[float | None] = mapped_column(Float)
-    total_cs: Mapped[int | None] = mapped_column(Integer)
-    cspm: Mapped[float | None] = mapped_column(Float)
+    kda: Mapped[float | None] = mapped_column(Float) # REMOVE
+    total_cs: Mapped[int | None] = mapped_column(Integer) # REMOVE
+    cspm: Mapped[float | None] = mapped_column(Float) # REMOVE
 
     # Stored JSONs
     challenges = mapped_column(JSONB)
@@ -56,7 +60,7 @@ class Participant(Base):
         if isinstance(value, MappedColumn) and isinstance(value.column.type, JSONB)
     ]
     # We store the ParticipantDto - the above stored JSONs here
-    participant = mapped_column(JSONB)
+    participant = mapped_column(JSONB) # REMOVE
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
@@ -69,13 +73,13 @@ class Participant(Base):
     def riot_name(cls):
         return func.concat(cls.riot_id_game_name, "#", cls.riot_id_tagline)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # REMOVE
         super().__init__(*args, **kwargs)
         self.kda = self.calculate_kda()
         self.total_cs = self.calculate_total_cs()
         self.cspm = self.calculate_cspm()
 
-    def calculate_kda(self) -> float | None:
+    def calculate_kda(self) -> float | None:  # REMOVE
         if self.kills is None or self.assists is None or self.deaths is None:
             return None
         if self.deaths > 0:
@@ -87,7 +91,7 @@ class Participant(Base):
             return None
         return self.total_minions_killed + self.neutral_minions_killed
 
-    def calculate_cspm(self) -> float | None:
+    def calculate_cspm(self) -> float | None:  # REMOVE
         if (
             self.total_cs is None
             or self.game_duration is None

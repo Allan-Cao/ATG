@@ -120,11 +120,21 @@ def upsert_match(
         session.query(Game).filter(Game.id == match_id).delete()
         session.commit()
 
+    if len(game_info.get("participants", [])) > 0:
+        early_surrender = game_info["participants"][0].get("gameEndedInEarlySurrender", False)
+        surrender = game_info["participants"][0].get("gameEndedInSurrender", False)
+    else:
+        early_surrender = False
+        surrender = False
+
     game = Game(
         **{k: game_info.get(snake_to_camel(k)) for k in Game.INFO_DTO},
         **{"id": match_id},
         **tournament_info,
+        game_ended_in_early_surrender = early_surrender,
+        game_ended_in_surrender = surrender,
     )
+    
     session.add(game)
     session.flush()
 

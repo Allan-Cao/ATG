@@ -1,13 +1,4 @@
-from sqlalchemy import (
-    ForeignKey,
-    Text,
-    Integer,
-    BigInteger,
-    DateTime,
-    func,
-    Index,
-    text,
-)
+from sqlalchemy import ForeignKey, Text, Integer, BigInteger, DateTime, func, Index, text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship, MappedColumn
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSONB
@@ -41,6 +32,9 @@ class Game(Base):
     INFO_DTO = [
         name for name, value in locals().items() if isinstance(value, MappedColumn)
     ]
+    
+    game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean)
+    game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean)
 
     # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
     id: Mapped[str] = mapped_column(Text, primary_key=True)
@@ -62,7 +56,7 @@ class Game(Base):
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     @hybrid_property
-    def patch(self):
+    def patch(self): # type: ignore
         version_split = self.game_version.split(".")
         return (
             f"{version_split[0]}.{version_split[1]}"
