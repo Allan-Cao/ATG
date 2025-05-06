@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 
+
 class TeamDto(Base):
     __tablename__ = "team_dtos"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

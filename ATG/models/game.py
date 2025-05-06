@@ -1,10 +1,21 @@
-from sqlalchemy import ForeignKey, Text, Integer, BigInteger, DateTime, func, Index, text, Boolean
+from sqlalchemy import (
+    ForeignKey,
+    Text,
+    Integer,
+    BigInteger,
+    DateTime,
+    func,
+    Index,
+    text,
+    Boolean,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship, MappedColumn
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 from .base import Base
 from ..api.utils import REGIONS
+
 
 class Game(Base):
     __tablename__ = "games"
@@ -32,14 +43,16 @@ class Game(Base):
     INFO_DTO = [
         name for name, value in locals().items() if isinstance(value, MappedColumn)
     ]
-    
+
     game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean)
     game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean)
 
     # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
     id: Mapped[str] = mapped_column(Text, primary_key=True)
     # ParticipantDto
-    participants: Mapped[list["Participant"]] = relationship("Participant", back_populates="game")
+    participants: Mapped[list["Participant"]] = relationship(
+        "Participant", back_populates="game"
+    )
     # TeamDto
     teams: Mapped[list["TeamDto"]] = relationship()
 
@@ -56,7 +69,7 @@ class Game(Base):
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     @hybrid_property
-    def patch(self): # type: ignore
+    def patch(self):  # type: ignore
         version_split = self.game_version.split(".")
         return (
             f"{version_split[0]}.{version_split[1]}"
@@ -71,7 +84,7 @@ class Game(Base):
             ".",
             func.split_part(cls.game_version, ".", 2),
         )
-    
+
     @hybrid_property
     def solo_queue(self) -> bool:
         return self.platform_id in list(REGIONS)

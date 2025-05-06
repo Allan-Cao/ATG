@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from .base import Base
 
+
 class Champion(Base):
     __tablename__ = "champions"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
