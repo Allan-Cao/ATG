@@ -4,7 +4,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 from .base import Base
-
+from ..api.utils import REGIONS
 
 class Game(Base):
     __tablename__ = "games"
@@ -71,6 +71,14 @@ class Game(Base):
             ".",
             func.split_part(cls.game_version, ".", 2),
         )
+    
+    @hybrid_property
+    def solo_queue(self) -> bool:
+        return self.platform_id in list(REGIONS)
+
+    @solo_queue.expression
+    def solo_queue(cls):
+        return cls.platform_id.in_(list(REGIONS))
 
     __table_args__ = (
         Index("idx_games_queue_id", "queue_id"),

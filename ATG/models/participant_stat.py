@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer, DateTime, Float, func, case, type_coerce
+from sqlalchemy import ForeignKey, Integer, DateTime, Float, func, case, type_coerce, select
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, MappedColumn, relationship
@@ -48,13 +48,24 @@ class ParticipantStat(Base):
 
     participant: Mapped["Participant"] = relationship("Participant", back_populates="stats")
     
+    @classmethod
+    def _game_duration_minutes(cls):
+        from .participant import Participant
+        from .game import Game
+        
+        return select(Game.game_duration / 60).join(
+            Participant, Participant.game_id == Game.id
+        ).where(
+            Participant.id == cls.participant_id
+        ).scalar_subquery()
+    
     @hybrid_property
     def cs(self) -> int:
         return self.total_minions_killed + self.neutral_minions_killed
     
-    @cs.inplace.expression
+    @cs.expression
     @classmethod
-    def _cs(cls):
+    def cs(cls):
         return type_coerce(cls.total_minions_killed + cls.neutral_minions_killed, Integer)
     
     @hybrid_property
@@ -63,8 +74,8 @@ class ParticipantStat(Base):
     
     @cspm.expression
     @classmethod
-    def _cspm(cls):
-        return type_coerce(cls.cs / ( cls.participant.game.game_duration / 60 ), Float)
+    def cspm(cls):
+        return type_coerce(cls.cs / ( cls._game_duration_minutes() ), Float)
 
     @hybrid_property
     def kda(self) -> float:
@@ -74,7 +85,7 @@ class ParticipantStat(Base):
     
     @kda.expression
     @classmethod
-    def _kda(cls):
+    def kda(cls):
         return case(
             (cls.deaths > 0, (cls.kills + cls.assists) / cls.deaths),
             else_=(cls.kills + cls.assists)

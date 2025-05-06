@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, Text, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 
 class TeamDto(Base):
@@ -13,3 +13,10 @@ class TeamDto(Base):
     objectives = mapped_column(JSONB)
     team_id: Mapped[int] = mapped_column(Integer)
     win: Mapped[bool] = mapped_column(Boolean)
+
+    participants: Mapped[list["Participant"]] = relationship(
+        "Participant",
+        primaryjoin="and_(TeamDto.game_id == Participant.game_id, TeamDto.team_id == Participant.team_id)",
+        foreign_keys="[Participant.game_id, Participant.team_id]",
+        viewonly=True,
+    )

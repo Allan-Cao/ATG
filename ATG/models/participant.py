@@ -30,6 +30,13 @@ class Participant(Base):
 
     game: Mapped["Game"] = relationship("Game", back_populates="participants")
     stats: Mapped["ParticipantStat"] = relationship("ParticipantStat", back_populates="participant")
+    
+    team: Mapped["TeamDto"] = relationship(
+        "TeamDto",
+        primaryjoin="and_(Participant.game_id == TeamDto.game_id, Participant.team_id == TeamDto.team_id)",
+        foreign_keys=[game_id, team_id],
+        viewonly=True,
+    )
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
@@ -39,8 +46,7 @@ class Participant(Base):
         return f"{self.riot_id_game_name}#{self.riot_id_tagline}"
 
     @riot_name.expression
-    @classmethod
-    def _riot_name(cls):
+    def riot_name(cls):
         return func.concat(cls.riot_id_game_name, "#", cls.riot_id_tagline)
 
     def __repr__(self):
