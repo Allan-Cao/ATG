@@ -4,8 +4,9 @@ from .champion import Champion
 from .draft_event import DraftEvent
 from .game import Game
 from .game_event import GameEvent
-from .player import Player
+from .participant_stat import ParticipantStat
 from .participant import Participant
+from .player import Player
 from .player_team_association import PlayerTeamAssociation
 from .team import Team
 from .team_dto import TeamDto
@@ -19,6 +20,7 @@ __all__ = [
     "Game",
     "GameEvent",
     "Player",
+    "ParticipantStat",
     "Participant",
     "PlayerTeamAssociation",
     "Team",

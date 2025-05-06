@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session as _Session
 from tqdm import tqdm
 from ..api import get_match_history, get_match_by_id
 from ..api.account_v1 import get_account_by_puuid
-from ..models import Player, Game, Participant, Account, TeamDto
+from ..models import Player, Game, Participant, Account, TeamDto, ParticipantStat
 from ..utils import SEASON_START, camel_to_snake, snake_to_camel
 
 
@@ -88,9 +88,8 @@ def upsert_match_history(
                 game_data = get_match_by_id(match_id, API_KEY)
                 if game_data is None:
                     return None
-                game_data = game_data.json()
-                game_info = game_data["info"]
-                match_end_time = upsert_match(session, match_id, game_data, game_info)
+                game_data = game_data.json()["info"]
+                match_end_time = upsert_match(session, match_id, game_data)
                 if not latest_game_set and match_end_time is not None:
                     account.latest_game = match_end_time
                     latest_game_set = True
@@ -102,43 +101,43 @@ def upsert_match_history(
 
 def upsert_match(
     session: _Session,
-    match_id: str,
+    game_id: str,
     game_data: dict,
-    game_info: dict,
-    force: bool = False,
-    game_type: str | None = None,
-    tournament_info: dict = {},
+    game_args: dict = {},
 ) -> int | None:
-    match = session.query(Game).filter(Game.id == match_id).first()
-    # IF we are not forcing an update, we need to check the game doesn't already exist.
-    if match is not None and force == False:
-        return None
-    # However, if we *are* forcing an update we will delete the existing records
-    if force:
-        session.query(Participant).filter(Participant.game_id == match_id).delete()
-        session.query(TeamDto).filter(TeamDto.game_id == match_id).delete()
-        session.query(Game).filter(Game.id == match_id).delete()
-        session.commit()
+    """Function to process game data from MatchV5-like sources
 
-    if len(game_info.get("participants", [])) > 0:
-        early_surrender = game_info["participants"][0].get("gameEndedInEarlySurrender", False)
-        surrender = game_info["participants"][0].get("gameEndedInSurrender", False)
+    Args:
+        session: ORM Session object
+        game_id: Riot's Game ID number
+        match_data: MatchV5-like Dictionary to be processed
+        game_args: Additional fields to be passed to the game object
+    """
+    match = session.query(Game).filter(Game.id == game_id).one_or_none()
+    if match is not None:
+        return None
+
+    if len(game_data.get("participants", [])) > 0:
+        early_surrender = game_data["participants"][0].get(
+            "gameEndedInEarlySurrender", False
+        )
+        surrender = game_data["participants"][0].get("gameEndedInSurrender", False)
     else:
         early_surrender = False
         surrender = False
 
     game = Game(
-        **{k: game_info.get(snake_to_camel(k)) for k in Game.INFO_DTO},
-        **{"id": match_id},
-        **tournament_info,
-        game_ended_in_early_surrender = early_surrender,
-        game_ended_in_surrender = surrender,
+        **{k: game_data.get(snake_to_camel(k)) for k in Game.INFO_DTO},
+        **{"id": game_id},
+        **game_args,
+        game_ended_in_early_surrender=early_surrender,
+        game_ended_in_surrender=surrender,
     )
-    
+
     session.add(game)
     session.flush()
 
-    for team in game_info["teams"]:
+    for team in game_data["teams"]:
         teamDto = TeamDto(
             game_id=game.id,
             bans=team["bans"],
@@ -150,39 +149,39 @@ def upsert_match(
 
     # For some reason, zero duration game's are permitted by GRID. We can not process the match data for these games
     if game.game_duration and game.game_duration > 0:
-        participants = []
-        game_participants = game_info["participants"]
+        participant_stats = []
+        game_participants = game_data["participants"]
         for participant in game_participants:
             # First we extract the columns defined in the model and the DTOs we're storing
-            participant_dto_columns = {
-                camel_to_snake(k): v
-                for k, v in participant.items()
-                if camel_to_snake(k) in Participant.PARTICIPANT_DTO
+            participant_dto_extraction = {
+                k: participant[snake_to_camel(k)] for k in Participant.PARTICIPANT_DTO
             }
-            stored_dtos = {
-                camel_to_snake(k): participant[snake_to_camel(k)]
-                for k in Participant.STORED_DTOS
+            participant_stat_extraction = {
+                k: participant[snake_to_camel(k)]
+                for k in ParticipantStat.PARTICIPANT_STAT_DTO
             }
-            # Then, we can remove the already stored keys DTOs
-            for key in Participant.STORED_DTOS + Participant.PARTICIPANT_DTO:
+            # Then, we can remove the stored keys
+            for key in (
+                ParticipantStat.PARTICIPANT_STAT_DTO + Participant.PARTICIPANT_DTO
+            ):
                 del participant[snake_to_camel(key)]
-            # And store
-            participant_dto = {camel_to_snake(k): v for k, v in participant.items()}
-            participant_base = {
-                "game_id": game.id,
-                "game_duration": game.game_duration,
-                "participant": participant_dto,
-            }
-            participants.append(
-                Participant(
-                    **participant_base, **participant_dto_columns, **stored_dtos
+
+            new_participant = Participant(game_id=game.id, **participant_dto_extraction)
+            session.add(new_participant)
+            session.flush()
+            participant_stats.append(
+                ParticipantStat(
+                    participant_id=new_participant.id,
+                    **participant_stat_extraction,
+                    source_data=participant,
                 )
             )
-        session.add_all(participants)
+
+        session.add_all(participant_stats)
         session.flush()
     try:
         session.commit()
         return game.game_end_timestamp
     except Exception as e:
-        print(f"Something went wrong ingesting match {match_id}: {str(e)}")
+        print(f"Something went wrong ingesting match {game_id}: {str(e)}")
         session.rollback()

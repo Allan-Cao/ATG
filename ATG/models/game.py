@@ -39,7 +39,7 @@ class Game(Base):
     # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
     id: Mapped[str] = mapped_column(Text, primary_key=True)
     # ParticipantDto
-    participants: Mapped[list["Participant"]] = relationship()
+    participants: Mapped[list["Participant"]] = relationship("Participant", back_populates="game")
     # TeamDto
     teams: Mapped[list["TeamDto"]] = relationship()
 

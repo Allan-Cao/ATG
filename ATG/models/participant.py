@@ -1,7 +1,6 @@
-from sqlalchemy import ForeignKey, Text, Integer, Boolean, DateTime, Float, func, Index
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import ForeignKey, Text, Integer, DateTime, func, Index
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, mapped_column, MappedColumn
+from sqlalchemy.orm import Mapped, mapped_column, MappedColumn, relationship
 from datetime import datetime
 from .base import Base
 
@@ -21,46 +20,16 @@ class Participant(Base):
     team_position: Mapped[str | None] = mapped_column(Text)
     team_id: Mapped[int] = mapped_column(Integer) # RENAME
 
-    # Stats to be moved into participant_stat
-    kills: Mapped[int | None] = mapped_column(Integer) # REMOVE
-    deaths: Mapped[int | None] = mapped_column(Integer)  # REMOVE
-    assists: Mapped[int | None] = mapped_column(Integer) # REMOVE
-    # Eventually, this should be removed in favor of champion id
-    champion_name: Mapped[str] = mapped_column(Text) # REMOVE
-    # Eventually these two should be moved into game since they appear to be consistant across all participants
-    game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean) # REMOVE
-    game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean) # REMOVE
-    win: Mapped[bool | None] = mapped_column(Boolean) # REMOVE
-    # Calculated stats (will likely remove in the future)
-    total_minions_killed: Mapped[int | None] = mapped_column(Integer) # REMOVE
-    neutral_minions_killed: Mapped[int | None] = mapped_column(Integer) # REMOVE
     # Automatically generate the stored_keys
     PARTICIPANT_DTO = [
         name for name, value in locals().items() if isinstance(value, MappedColumn)
     ]
 
-    # We need to move these declarations below the auto generation
-
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     game_id: Mapped[str] = mapped_column(Text, ForeignKey("games.id"))
-    game_duration: Mapped[int | None] = mapped_column(Integer)  # in seconds (REMOVE)
 
-    # Calculated stats
-    kda: Mapped[float | None] = mapped_column(Float) # REMOVE
-    total_cs: Mapped[int | None] = mapped_column(Integer) # REMOVE
-    cspm: Mapped[float | None] = mapped_column(Float) # REMOVE
-
-    # Stored JSONs
-    challenges = mapped_column(JSONB)
-    missions = mapped_column(JSONB)
-    perks = mapped_column(JSONB)
-    STORED_DTOS = [
-        name
-        for name, value in locals().items()
-        if isinstance(value, MappedColumn) and isinstance(value.column.type, JSONB)
-    ]
-    # We store the ParticipantDto - the above stored JSONs here
-    participant = mapped_column(JSONB) # REMOVE
+    game: Mapped["Game"] = relationship("Game", back_populates="participants")
+    stats: Mapped["ParticipantStat"] = relationship("ParticipantStat", back_populates="participant")
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
@@ -70,38 +39,12 @@ class Participant(Base):
         return f"{self.riot_id_game_name}#{self.riot_id_tagline}"
 
     @riot_name.expression
-    def riot_name(cls):
+    @classmethod
+    def _riot_name(cls):
         return func.concat(cls.riot_id_game_name, "#", cls.riot_id_tagline)
 
-    def __init__(self, *args, **kwargs):  # REMOVE
-        super().__init__(*args, **kwargs)
-        self.kda = self.calculate_kda()
-        self.total_cs = self.calculate_total_cs()
-        self.cspm = self.calculate_cspm()
-
-    def calculate_kda(self) -> float | None:  # REMOVE
-        if self.kills is None or self.assists is None or self.deaths is None:
-            return None
-        if self.deaths > 0:
-            return (self.kills + self.assists) / self.deaths
-        return self.kills + self.assists
-
-    def calculate_total_cs(self) -> int | None:
-        if self.total_minions_killed is None or self.neutral_minions_killed is None:
-            return None
-        return self.total_minions_killed + self.neutral_minions_killed
-
-    def calculate_cspm(self) -> float | None:  # REMOVE
-        if (
-            self.total_cs is None
-            or self.game_duration is None
-            or self.game_duration == 0
-        ):
-            return None
-        return self.total_cs / (self.game_duration / 60)
-
     def __repr__(self):
-        return f"{self.game_id}-{self.riot_id_game_name}#{self.riot_id_tagline} on {self.champion_name}"
+        return f"{self.game_id}-{self.riot_name} (#{self.participant_id})"
 
     __table_args__ = (
         Index("idx_participants_game_id", "game_id"),
