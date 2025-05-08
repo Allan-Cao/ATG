@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Text, Integer, DateTime, func, Index
+from sqlalchemy import ForeignKey, Text, Integer, DateTime, func, Index, Boolean
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, MappedColumn, relationship
 from datetime import datetime
@@ -19,6 +19,7 @@ class Participant(Base):
     summoner_name: Mapped[str | None] = mapped_column(Text)
     team_position: Mapped[str | None] = mapped_column(Text)
     team_id: Mapped[int] = mapped_column(Integer)  # RENAME
+    win: Mapped[bool | None] = mapped_column(Boolean)
 
     # Automatically generate the stored_keys
     PARTICIPANT_DTO = [
@@ -42,7 +43,7 @@ class Participant(Base):
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-
+    
     @hybrid_property
     def riot_name(self):
         return f"{self.riot_id_game_name}#{self.riot_id_tagline}"
