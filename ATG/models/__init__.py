@@ -7,6 +7,7 @@ from .game_event import GameEvent
 from .participant_stat import ParticipantStat
 from .participant import Participant
 from .player import Player
+from .series import Series
 from .player_team_association import PlayerTeamAssociation
 from .team import Team
 from .team_dto import TeamDto
@@ -20,6 +21,7 @@ __all__ = [
     "Game",
     "GameEvent",
     "Player",
+    "Series",
     "ParticipantStat",
     "Participant",
     "PlayerTeamAssociation",

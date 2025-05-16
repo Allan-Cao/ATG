@@ -5,6 +5,8 @@ from .constants import (
     DEFAULT_REGION,
     SEASON_START,
     MINIMUM_MATCH_DURATION,
+    SeriesStatus,
+    SeriesType
 )
 
 from .helpers import camel_to_snake, snake_to_camel
@@ -16,6 +18,8 @@ __all__ = [
     "DEFAULT_REGION",
     "SEASON_START",
     "MINIMUM_MATCH_DURATION",
+    "SeriesStatus",
+    "SeriesType",
     "camel_to_snake",
-    "snake_to_camel"
+    "snake_to_camel",
 ]
