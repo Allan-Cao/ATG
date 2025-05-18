@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 from ATG.database import get_session_factory
 from ATG.api import get_challengers, get_masters, get_grandmasters, get_match_history, get_match_by_id
@@ -18,7 +18,13 @@ Session = get_session_factory(DB_CONNECTION)
 
 with Session() as session:
     region = "NA1"
-    players = get_masters(region, "RANKED_SOLO_5x5", RIOT_API).json()["entries"]
+    players = []
+    players.extend(get_challengers(region, "RANKED_SOLO_5x5", RIOT_API).json()["entries"])
+    players.extend(get_grandmasters(region, "RANKED_SOLO_5x5", RIOT_API).json()["entries"])
+    players.extend(get_masters(region, "RANKED_SOLO_5x5", RIOT_API).json()["entries"])
+
+    import random
+    random.shuffle(players)
 
     existing_ids = set(session.scalars(select(Game.id)).all())
     for player in players:
@@ -26,7 +32,7 @@ with Session() as session:
             player["puuid"],
             region,
             RIOT_API,
-            startTime=SEASON_START,
+            startTime=1745888400,
             queue=420,
         )
         new_match_ids = set(match_ids) - existing_ids

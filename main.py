@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 from ATG.match_lib import upsert_match_history, update_account_names
 from ATG.database import get_session_factory
