@@ -8,6 +8,8 @@ from sqlalchemy import (
     Index,
     text,
     Boolean,
+    case,
+    literal
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship, MappedColumn
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -62,6 +64,8 @@ class Game(Base):
     tournament_id: Mapped[int | None] = mapped_column(
         ForeignKey("tournaments.id"), nullable=True
     )
+    tournament: Mapped["Tournament"] = relationship("Tournament", back_populates="games")
+
     # Esports Game Information (GRID)
     series_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     series_game_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -86,12 +90,36 @@ class Game(Base):
         )
 
     @hybrid_property
-    def solo_queue(self) -> bool:
+    def solo_queue(self) -> bool: # type: ignore
         return self.platform_id in list(REGIONS)
 
     @solo_queue.expression
     def solo_queue(cls):
         return cls.platform_id.in_(list(REGIONS))
+    
+    @hybrid_property
+    def calculated_game_type(self) -> str: # type: ignore
+        if self.solo_queue and self.queue_id == 420:
+            return "SOLOQUEUE"
+        elif self.solo_queue and self.queue_id == 0: # Tournament code games
+            return "CUSTOM"
+        elif not self.solo_queue and self.game_name and self.game_name.lower().startswith("scrim|"):
+            return "SCRIM"
+        elif not self.solo_queue:
+            return "ESPORTS"
+        else:
+            return ""
+    
+    @calculated_game_type.expression
+    @classmethod
+    def calculated_game_type(cls):
+        return case(
+            (cls.solo_queue.is_(True) & (cls.queue_id == 420), literal("SOLOQUEUE")),
+            (cls.solo_queue.is_(True) & (cls.queue_id == 0), literal("CUSTOM")),
+            (cls.solo_queue.is_(False) & cls.game_name.ilike("scrim|%"), literal("SCRIM")),
+            (cls.solo_queue.is_(False), literal("ESPORTS")),
+            else_=literal("")
+        )
 
     __table_args__ = (
         Index("idx_games_queue_id", "queue_id"),

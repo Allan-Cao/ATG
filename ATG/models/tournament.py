@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import Text, Integer, DateTime, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.types import SmallInteger
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 
 
@@ -31,5 +31,7 @@ class Tournament(Base):
     # Additional tournament information can be stored here
     additional_details = mapped_column(JSONB)
 
+    games: Mapped[list["Game"]] = relationship("Game", back_populates="tournament")
+    
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
