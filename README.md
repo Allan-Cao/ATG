@@ -20,18 +20,21 @@ Here is are the major differences I have decided on.
 
 | Key used | Meaning | Examples |
 | --- | --- | --- |
-| Side  | Blue/Red  | 100 - Blue, 200 - Red |
-| Series  | A collection of related games | series_id = "match_id" |
+| Series  | A collection of related games | A series has many games |
+| X_id | table_id; Foreign key name | champion_id, game_id |
+| team_id  | Blue / red sides  | 100 - Blue, 200 - Red |
+| source_data | Raw/unprocessed data | ParticipantStats we store the unprocessed match_v5 columns here |
 
 ## Todo
 - [x] Remove the usage of `ratelimit` in favor of something that actually does stable rate limiting
 - [x] Properly handle API error codes
 - [x] Add the ability to store draft / other available esports game information
 - [x] Open source GRID API code and GRID insertion scripts
-- [ ] Handle database sessions and API keys better using dependency injection or something other than passing session objects around
-- [ ] Normalize database objects
-- [ ] Reduce the number of nullable columns where possible.
+- [ ] Handle database sessions and API keys better using dependency injection or something other than passing session objects around. I kind of like the current functional nature of the API
+- [ ] Normalize database objects. Specifically the series/tournament-game relationship
+- [ ] Reduce the number of nullable columns where possible. This is especially a problem on the game table
 - [ ] Introduce enums where appropriate
+- [ ] Transition to HTTPX > requests
 
 ## Setup & Example Usage
 

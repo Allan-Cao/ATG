@@ -15,6 +15,8 @@ class TeamDto(Base):
     team_id: Mapped[int] = mapped_column(Integer)
     win: Mapped[bool] = mapped_column(Boolean)
 
+    fk_team_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("teams.id"), nullable=True)
+
     participants: Mapped[list["Participant"]] = relationship(
         "Participant",
         primaryjoin="and_(TeamDto.game_id == Participant.game_id, TeamDto.team_id == Participant.team_id)",
