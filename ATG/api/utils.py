@@ -51,9 +51,17 @@ TierLiteral = Literal[
 ]
 
 REGIONS = StrEnum("Regions", [(_, _) for _ in PLATFORM_ROUTING.keys()])
-QUEUES = StrEnum("Queues", [(_, _) for _ in ["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"]])
+QUEUES = StrEnum(
+    "Queues", [(_, _) for _ in ["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"]]
+)
 DIVISIONS = StrEnum("Divisions", [(_, _) for _ in ["I", "II", "III", "IV"]])
-TIERS = StrEnum("Tiers", [(_, _) for _ in ["DIAMOND", "EMERALD", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON"]])
+TIERS = StrEnum(
+    "Tiers",
+    [
+        (_, _)
+        for _ in ["DIAMOND", "EMERALD", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON"]
+    ],
+)
 
 
 def parse_match_id(match_id: str) -> tuple[str, str]:
