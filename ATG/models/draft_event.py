@@ -20,4 +20,4 @@ class DraftEvent(Base):
     # Draft turn (blue1, red2, red3, blue4, blue5, red6, red7, blue8, blue9, red10)
     pick_turn: Mapped[int] = mapped_column(Integer)
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())

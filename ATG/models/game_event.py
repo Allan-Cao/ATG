@@ -18,7 +18,7 @@ class GameEvent(Base):
     # This field flexibly stores the rest of the relevant fields
     additional_details = mapped_column(JSONB)
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     __table_args__ = (
         Index("idx_game_events_game_id", "game_id"),

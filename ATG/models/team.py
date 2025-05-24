@@ -1,6 +1,8 @@
-from sqlalchemy import Integer, Text
+from sqlalchemy import Integer, Text, DateTime, func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
+from datetime import datetime
+
 from .base import Base
 from .player_team_association import PlayerTeamAssociation
 
@@ -19,6 +21,9 @@ class Team(Base):
 
     # We store additional information in a JSONB blob
     additional_details = mapped_column(JSONB)
+
+    # Debug
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     player_associations: Mapped[list["PlayerTeamAssociation"]] = relationship(
         "PlayerTeamAssociation", back_populates="team"

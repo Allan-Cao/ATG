@@ -70,7 +70,7 @@ class Game(Base):
     series_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     series_game_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     @hybrid_property
     def patch(self):  # type: ignore

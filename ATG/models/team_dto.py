@@ -1,6 +1,7 @@
-from sqlalchemy import Integer, Text, ForeignKey, Boolean
+from sqlalchemy import Integer, Text, ForeignKey, Boolean, DateTime, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from datetime import datetime
 from .base import Base
 
 
@@ -16,6 +17,9 @@ class TeamDto(Base):
     win: Mapped[bool] = mapped_column(Boolean)
 
     fk_team_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("teams.id"), nullable=True)
+
+    # Debug
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     participants: Mapped[list["Participant"]] = relationship(
         "Participant",

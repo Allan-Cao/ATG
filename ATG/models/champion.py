@@ -11,4 +11,4 @@ class Champion(Base):
     # alias (communitydragon) is the same as id (ddragon)
     alias: Mapped[str] = mapped_column(Text, unique=True)
 
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())

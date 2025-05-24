@@ -18,7 +18,7 @@ class Account(Base):
     region: Mapped[str] = mapped_column(Text, nullable=False)
     # Last time / newest game was added to the database (used for match history ingestion)
     latest_game: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
     # Player associated with the tracked account
     player_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("players.id"))
     # Flag set for inactive tracked accounts
