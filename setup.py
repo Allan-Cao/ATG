@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ATG",
-    version="1.3.3.1",
+    version="1.3.3.2",
     packages=find_packages(include=["ATG", "ATG.*"]),
     install_requires=[
         "SQLAlchemy",
