@@ -42,36 +42,33 @@ class Game(Base):
     platform_id: Mapped[str | None] = mapped_column(Text, nullable=True)  # e.g. EUW1
     queue_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     tournament_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     INFO_DTO = [
         name for name, value in locals().items() if isinstance(value, MappedColumn)
     ]
 
+    # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
+    id: Mapped[str] = mapped_column(Text, primary_key=True)
+
     game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean)
     game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean)
 
-    # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
-    id: Mapped[str] = mapped_column(Text, primary_key=True)
+    # Additional game information can be stored here.
+    source_data = mapped_column(JSONB)
+
+    # Esports Game Information
+    series_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    series_game_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    
+    # Debug
+    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+
     # ParticipantDto
     participants: Mapped[list["Participant"]] = relationship(
         "Participant", back_populates="game"
     )
     # TeamDto
     teams: Mapped[list["TeamDto"]] = relationship()
-
-    # Additional game information can be stored here.
-    source_data = mapped_column(JSONB)
-
-    # Tournament Game Information
-    tournament_id: Mapped[int | None] = mapped_column(
-        ForeignKey("tournaments.id"), nullable=True
-    )
-    tournament: Mapped["Tournament"] = relationship("Tournament", back_populates="games")
-
-    # Esports Game Information (GRID)
-    series_id: Mapped[str | None] = mapped_column(Text, nullable=True)
-    series_game_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     @hybrid_property
     def patch(self):  # type: ignore

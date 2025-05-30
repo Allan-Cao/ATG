@@ -30,8 +30,6 @@ class Tournament(Base):
 
     # Additional team information can be stored here 
     source_data = mapped_column(JSONB)
-
-    games: Mapped[list["Game"]] = relationship("Game", back_populates="tournament")
     
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
