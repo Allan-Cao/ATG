@@ -28,8 +28,8 @@ class Tournament(Base):
     # External IDs can be stored here
     external_ids = mapped_column(JSONB)
 
-    # Additional tournament information can be stored here
-    additional_details = mapped_column(JSONB)
+    # Additional team information can be stored here 
+    source_data = mapped_column(JSONB)
 
     games: Mapped[list["Game"]] = relationship("Game", back_populates="tournament")
     

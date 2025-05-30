@@ -16,14 +16,16 @@ I have decided to bump the major version since this library is mature enough for
 
 Although naming initially reflects the match-v5 API's choices and the terminology used by GRID esports, I've had to make some changes.
 
-Here is are the major differences I have decided on.
+Here is are the major differences / exceptions that should be noted.
 
 | Key used | Meaning | Examples |
 | --- | --- | --- |
 | Series  | A collection of related games | A series has many games |
+| source_data | Raw/unprocessed/additional data | Specifically in ParticipantStats we store the unprocessed match_v5 columns here |
 | X_id | table_id; Foreign key name | champion_id, game_id |
 | team_id  | Blue / red sides  | 100 - Blue, 200 - Red |
-| source_data | Raw/unprocessed data | ParticipantStats we store the unprocessed match_v5 columns here |
+| participant_id | The "#" of the participant | From 1 - 10 representing blue top -> red bottom most of the time. |
+
 
 ## Todo
 - [x] Remove the usage of `ratelimit` in favor of something that actually does stable rate limiting
@@ -35,6 +37,7 @@ Here is are the major differences I have decided on.
 - [ ] Reduce the number of nullable columns where possible. This is especially a problem on the game table
 - [ ] Introduce enums where appropriate
 - [ ] Transition to HTTPX > requests
+- [ ] Remove or update the player_team_association table. I currently don't use it but it's definitely useful and should be revisited in the future.
 
 ## Setup & Example Usage
 

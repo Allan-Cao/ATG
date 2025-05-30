@@ -15,8 +15,9 @@ class GameEvent(Base):
     # Missing from 'champ_select', 'game_info' type events
     game_time: Mapped[int] = mapped_column(Integer)
 
-    # This field flexibly stores the rest of the relevant fields
-    additional_details = mapped_column(JSONB)
+    # The rest of the event data is stored here
+    source_data = mapped_column(JSONB)
+
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 

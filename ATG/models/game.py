@@ -58,8 +58,9 @@ class Game(Base):
     # TeamDto
     teams: Mapped[list["TeamDto"]] = relationship()
 
-    # We can store additional info flexibly here
-    additional_details = mapped_column(JSONB)
+    # Additional game information can be stored here.
+    source_data = mapped_column(JSONB)
+
     # Tournament Game Information
     tournament_id: Mapped[int | None] = mapped_column(
         ForeignKey("tournaments.id"), nullable=True
