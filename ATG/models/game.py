@@ -57,9 +57,9 @@ class Game(Base):
     source_data = mapped_column(JSONB)
 
     # Esports Game Information
-    series_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    series_id: Mapped[str | None] = mapped_column(Text, ForeignKey("series.id"), nullable=True)
     series_game_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    
+
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
