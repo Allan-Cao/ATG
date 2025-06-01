@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Text, DateTime, func
+from sqlalchemy import Text, DateTime, func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
@@ -9,9 +9,7 @@ from .player_team_association import PlayerTeamAssociation
 
 class Team(Base):
     __tablename__ = "teams"
-
-    # For consistancy, we use an integer id primary key, however practically, it is good to set this as the GRID ID (even though it is originally a string)
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(Text, primary_key=True)
     # Multiple teams can share the same name in the GRID and LoL Esports APIs
     name: Mapped[str] = mapped_column(Text, unique=False)
     # Multiple teams can share the same team code due to inconsistancies in GRID/Bayes data e.x. academy teams share team codes with their main team

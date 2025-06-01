@@ -8,9 +8,7 @@ from .base import Base
 
 class Tournament(Base):
     __tablename__ = "tournaments"
-    # Same as with team, for consistancy, we use an integer id primary key.
-    # Practically, we store GRID ID's here (even though GRID IDs are typed as string by GRID)
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(Text, primary_key=True)
     # Tournament Name
     name: Mapped[str] = mapped_column(Text)
     # We should automatically parse the tournament year / league / split from its name for easy searching

@@ -8,7 +8,7 @@ class PlayerTeamAssociation(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.id"))
-    team_id: Mapped[int] = mapped_column(Integer, ForeignKey("teams.id"))
+    team_id: Mapped[str] = mapped_column(Text, ForeignKey("teams.id"))
     # Although not explicitly enforced, the (TOP, JUNGLE, MIDDLE, BOTTOM, UTILITY) is generally used
     position: Mapped[str | None] = mapped_column(Text, nullable=True)
 

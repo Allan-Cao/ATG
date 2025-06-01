@@ -13,7 +13,7 @@ class Series(Base):
     # Some of the older series have null start times when data is not available
     scheduled_start_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     format: Mapped[int] = mapped_column(Integer) # Best of number
-    tournament_id: Mapped[int] = mapped_column(Integer, ForeignKey("tournaments.id"))
+    tournament_id: Mapped[str] = mapped_column(Text, ForeignKey("tournaments.id"))
     external_links = mapped_column(JSONB)
 
     ###     Processing status      ###
