@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-from ATG.match_lib import upsert_match_history, update_account_names
+from ATG.match_lib import insert_match_history, update_account_names
 from ATG.database import get_session_factory
 from ATG.models import Player, Account
 from sqlalchemy import exists
@@ -25,4 +25,4 @@ with Session() as session:
         .all()
     )
     for player in PLAYERS:
-        upsert_match_history(session, player, RIOT_API)
+        insert_match_history(session, player, RIOT_API)

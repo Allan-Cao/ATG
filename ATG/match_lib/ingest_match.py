@@ -38,7 +38,7 @@ def update_account_names(session: _Session, API_KEY: str, days: int = 7):
         session.rollback()
 
 
-def upsert_match_history(
+def insert_match_history(
     session: _Session,
     player: Player,
     API_KEY: str,
@@ -53,7 +53,7 @@ def upsert_match_history(
         print(f"Updating match history for {str(account)}")
 
         if start_latest:
-            latest_game_query = (
+            latest_game_timestamp = session.scalar(
                 select(Game.game_end_timestamp)
                 .join(Participant, Participant.game_id == Game.id)
                 .where(
@@ -62,13 +62,10 @@ def upsert_match_history(
                 .order_by(Game.game_end_timestamp.desc())
                 .limit(1)
             )
-
-            latest_game_timestamp = session.scalar(latest_game_query)
-
             if latest_game_timestamp is None:
                 start_time = SEASON_START
             else:
-                start_time = int(latest_game_timestamp / 1000)
+                start_time = int(latest_game_timestamp.timestamp() / 1000)
         match_ids = get_match_history(
             account.puuid,
             account.region,
@@ -82,30 +79,23 @@ def upsert_match_history(
             print("All up to date!")
             continue
 
-        latest_game_set = False
         for match_id in tqdm(new_match_ids):
             try:
-                game_data = get_match_by_id(match_id, API_KEY)
-                if game_data is None:
-                    return None
-                game_data = game_data.json()["info"]
-                match_end_time = upsert_match(session, match_id, game_data)
-                if not latest_game_set and match_end_time is not None:
-                    account.latest_game = match_end_time
-                    latest_game_set = True
+                game_data = get_match_by_id(match_id, API_KEY).json()["info"]
+                process_match(session, match_id, game_data)
                 existing_ids.add(match_id)
             except Exception as e:
-                print(f"Failed to upsert match {match_id}: {str(e)}")
+                print(f"Failed to process match {match_id}: {str(e)}")
         session.commit()
 
 
-def upsert_match(
+def process_match(
     session: _Session,
     game_id: str,
     game_data: dict,
     game_args: dict = {},
 ) -> int | None:
-    """Function to process game data from MatchV5-like sources
+    """Function to process game data from MatchV5-like sources. If the game already exists, processing will be skipped.
 
     Args:
         session: ORM Session object
@@ -113,9 +103,8 @@ def upsert_match(
         match_data: MatchV5-like Dictionary to be processed
         game_args: Additional fields to be passed to the game object
     """
-    match = session.query(Game).filter(Game.id == game_id).one_or_none()
-    if match is not None:
-        return None
+    if session.query(Game).filter(Game.id == game_id).one_or_none() is not None:
+        return
 
     if len(game_data.get("participants", [])) > 0:
         early_surrender = game_data["participants"][0].get(
@@ -128,6 +117,7 @@ def upsert_match(
 
     game = Game(
         **{k: game_data.get(snake_to_camel(k)) for k in Game.INFO_DTO},
+        **{k: datetime.fromtimestamp(game_data[snake_to_camel(k)] / 1000) for k in Game.TIMESTAMPS},
         **{"id": game_id},
         **game_args,
         game_ended_in_early_surrender=early_surrender,
@@ -135,7 +125,7 @@ def upsert_match(
     )
 
     session.add(game)
-    session.flush()
+    session.flush() # We need to flush to ensure the game id exists in the database.
 
     for team in game_data["teams"]:
         teamDto = TeamDto(
@@ -178,10 +168,8 @@ def upsert_match(
             )
 
         session.add_all(participant_stats)
-        session.flush()
     try:
         session.commit()
-        return game.game_end_timestamp
     except Exception as e:
-        print(f"Something went wrong ingesting match {game_id}: {str(e)}")
         session.rollback()
+        print(f"Something went wrong ingesting match {game_id}: {str(e)}")

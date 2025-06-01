@@ -14,6 +14,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship, MappedColumn
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.sql.sqltypes import DateTime
 from datetime import datetime
 from .base import Base
 from ..api.utils import REGIONS
@@ -23,17 +24,14 @@ class Game(Base):
     __tablename__ = "games"
     # InfoDto
     end_of_game_result: Mapped[str | None] = mapped_column(Text, nullable=True)
-    game_creation: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     game_duration: Mapped[int | None] = mapped_column(
         Integer, nullable=True
     )  # in seconds
-    game_end_timestamp: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     game_id: Mapped[int | None] = mapped_column(
         BigInteger, nullable=True
     )  # Riot's game id
     game_mode: Mapped[str | None] = mapped_column(Text, nullable=True)
     game_name: Mapped[str | None] = mapped_column(Text, nullable=True)
-    game_start_timestamp: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     game_type: Mapped[str | None] = mapped_column(Text, nullable=True)
     game_version: Mapped[str | None] = mapped_column(
         Text, nullable=True
@@ -45,6 +43,14 @@ class Game(Base):
 
     INFO_DTO = [
         name for name, value in locals().items() if isinstance(value, MappedColumn)
+    ]
+
+    game_creation: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    game_start_timestamp: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    game_end_timestamp: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    TIMESTAMPS = [
+        name for name, value in locals().items() if isinstance(value, MappedColumn) and isinstance(value.column.type, DateTime)
     ]
 
     # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
