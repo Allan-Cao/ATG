@@ -65,7 +65,7 @@ def insert_match_history(
             if latest_game_timestamp is None:
                 start_time = SEASON_START
             else:
-                start_time = int(latest_game_timestamp.timestamp() / 1000)
+                start_time = int(latest_game_timestamp.timestamp())
         match_ids = get_match_history(
             account.puuid,
             account.region,
