@@ -40,7 +40,7 @@ def get_puuid(participant) -> str:
 def get_game_name(participant) -> str:
     return participant.get("riotId", {"displayName": participant.get("summonerName")})["displayName"]
 def get_tagline(participant) -> str:
-    return participant.get("riotId", {}).get("tagLine")
+    return participant.get("riotId", {}).get("tagLine", "")
 def get_team_id(participant) -> int:
     return participant.get("teamID", participant.get("teamId"))
 
