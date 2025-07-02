@@ -5,7 +5,7 @@ from tqdm import tqdm
 from ..api import get_match_history, get_match_by_id
 from ..api.account_v1 import get_account_by_puuid
 from ..models import Player, Game, Participant, Account, TeamDto, ParticipantStat
-from ..utils import SEASON_START, camel_to_snake, snake_to_camel
+from ..utils import SEASON_START, snake_to_camel
 
 
 def update_account_names(session: _Session, API_KEY: str, days: int = 7):
@@ -150,11 +150,25 @@ def process_match(
                 k: participant[snake_to_camel(k)]
                 for k in ParticipantStat.PARTICIPANT_STAT_DTO
             }
-            # Then, we can remove the stored keys
-            for key in (
-                ParticipantStat.PARTICIPANT_STAT_DTO + Participant.PARTICIPANT_DTO
-            ):
-                del participant[snake_to_camel(key)]
+
+            # Handle special fields that require extra processing
+            special_fields = {}
+            special_fields["perks"] = participant.get("perks")
+            special_fields["total_time_CC_dealt"] = int(participant.get("totalTimeCCDealt", 0))
+            special_fields["time_CC_ing_others"] = int(participant.get("timeCCingOthers", 0))
+            special_fields["total_gold"] = int(participant.get("goldEarned", 0))
+            special_fields["current_gold"] = int(participant.get("goldEarned", 0) - participant.get("goldSpent", 0))
+
+            source_data = dict(participant)
+
+            keys_to_remove = (
+                ParticipantStat.PARTICIPANT_STAT_DTO +
+                Participant.PARTICIPANT_DTO +
+                ["perks", "totalTimeCCDealt", "timeCCingOthers", "goldEarned", "goldSpent"]
+            )
+            for key in keys_to_remove:
+                camel_key = snake_to_camel(key) if key in ParticipantStat.PARTICIPANT_STAT_DTO + Participant.PARTICIPANT_DTO else key
+                source_data.pop(camel_key, None)
 
             new_participant = Participant(game_id=game.id, **participant_dto_extraction)
             session.add(new_participant)
@@ -163,7 +177,8 @@ def process_match(
                 ParticipantStat(
                     participant_id=new_participant.id,
                     **participant_stat_extraction,
-                    source_data=participant,
+                    **special_fields,
+                    source_data=source_data,
                 )
             )
 
