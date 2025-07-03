@@ -14,11 +14,9 @@ class Team(Base):
     name: Mapped[str] = mapped_column(Text, unique=False)
     # Multiple teams can share the same team code due to inconsistancies in GRID/Bayes data e.x. academy teams share team codes with their main team
     team_code: Mapped[str | None] = mapped_column(Text, unique=False, nullable=True)
-    # We can store GRID, LOL IDs here
-    external_ids = mapped_column(JSONB)
 
     # We store additional information in a JSONB blob
-    additional_details = mapped_column(JSONB)
+    source_data = mapped_column(JSONB)
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
