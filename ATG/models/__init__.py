@@ -11,6 +11,7 @@ from .series import Series
 from .player_team_association import PlayerTeamAssociation
 from .team import Team
 from .team_dto import TeamDto
+from .team_stat import TeamStat
 from .tournament import Tournament
 
 __all__ = [
@@ -27,5 +28,6 @@ __all__ = [
     "PlayerTeamAssociation",
     "Team",
     "TeamDto",
+    "TeamStat",
     "Tournament",
 ]
