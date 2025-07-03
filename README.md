@@ -1,5 +1,9 @@
 # ATG - All The Games
 
+[![Latest Version](https://img.shields.io/pypi/v/ATG-lib?label=latest)](https://pypi.org/project/ATG-lib/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/ATG-lib)](https://pypi.org/project/ATG-lib/)
+[![License](https://img.shields.io/github/license/Allan-Cao/ATG)](/LICENSE)
+
 Opinionated but flexible library of database models and scripts and APIs to store solo queue / competitive games, player, team and game data tailored for LoL Esports.
 
 ## Features
