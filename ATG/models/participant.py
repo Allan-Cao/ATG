@@ -43,7 +43,7 @@ class Participant(Base):
 
     # Debug
     updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-    
+
     @hybrid_property
     def riot_name(self):
         return f"{self.riot_id_game_name}#{self.riot_id_tagline}"
@@ -59,4 +59,5 @@ class Participant(Base):
         Index("idx_participants_game_id", "game_id"),
         Index("idx_participants_puuid", "puuid"),
         Index("idx_participants_puuid_queue", "puuid", postgresql_include=["game_id"]),
+        Index("idx_participants_champion_id", "champion_id"),
     )

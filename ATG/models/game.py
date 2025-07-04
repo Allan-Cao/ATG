@@ -100,7 +100,7 @@ class Game(Base):
     @solo_queue.expression
     def solo_queue(cls):
         return cls.platform_id.in_(list(REGIONS))
-    
+
     @hybrid_property
     def calculated_game_type(self) -> str: # type: ignore
         if self.solo_queue and self.queue_id == 420:
@@ -113,7 +113,7 @@ class Game(Base):
             return "ESPORTS"
         else:
             return ""
-    
+
     @calculated_game_type.expression
     @classmethod
     def calculated_game_type(cls):
@@ -129,4 +129,8 @@ class Game(Base):
         Index("idx_games_queue_id", "queue_id"),
         Index("idx_games_end_timestamp", text("game_end_timestamp DESC")),
         Index("idx_game_queue_timestamp", "queue_id", text("game_end_timestamp DESC")),
+        Index("idx_games_game_type", "game_type"),
+        Index("idx_games_series_id", "series_id"),
+        Index("idx_games_game_version", "game_version"),
+        Index("idx_games_type_version", "game_type", "game_version"),
     )

@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Text, ForeignKey, Boolean, DateTime, func
+from sqlalchemy import Integer, Text, ForeignKey, Boolean, DateTime, func, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
@@ -26,4 +26,9 @@ class TeamDto(Base):
         primaryjoin="and_(TeamDto.game_id == Participant.game_id, TeamDto.team_id == Participant.team_id)",
         foreign_keys="[Participant.game_id, Participant.team_id]",
         viewonly=True,
+    )
+
+    __table_args__ = (
+        Index("idx_team_dtos_game_id", "game_id"),
+        Index("idx_team_dtos_fk_team_id", "fk_team_id"),
     )

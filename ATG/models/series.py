@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Text, Integer, DateTime, func
+from sqlalchemy import ForeignKey, Text, Integer, DateTime, func, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
@@ -22,4 +22,8 @@ class Series(Base):
     ###           Debug            ###
     updated: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
+    )
+
+    __table_args__ = (
+        Index("idx_series_tournament_id", "tournament_id"),
     )
