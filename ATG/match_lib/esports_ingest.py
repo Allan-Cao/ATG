@@ -37,8 +37,11 @@ def create_account(puuid: str, name: str, tagline: str, player_id: int, region: 
 
 def get_puuid(participant) -> str:
     return str(participant.get("puuid", participant["accountID"]))
-def get_game_name(participant) -> str:
-    return participant.get("riotId", {"displayName": participant.get("summonerName")})["displayName"]
+def get_game_name(participant: dict) -> str | None:
+    return (participant.get("riotId", {}).get("displayName") or
+            participant.get("summonerName") or
+            participant.get("playerName") or
+            None)
 def get_tagline(participant) -> str:
     return participant.get("riotId", {}).get("tagLine", "")
 def get_team_id(participant) -> int:
@@ -101,9 +104,9 @@ def create_missing_accounts(session: Session, participants: dict):
             game_name = get_game_name(participant)
             player_names = [get_game_name(p) for p in participants if get_team_id(p) == get_team_id(participant)]
             player_name = game_name[get_common_prefix_length(player_names):]
-            
+
             db_player = session.scalar(select(Player).where(Player.name == player_name))
-            
+
             if db_player is None:
                 db_player = create_player(player_name)
                 session.add(db_player)

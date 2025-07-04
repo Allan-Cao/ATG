@@ -1,6 +1,6 @@
 [project]
 name = "ATG-lib"
-version = "1.5.4"
+version = "1.5.5"
 description = "Python library to process solo queue game data with comprehensive database models to additionally store LoL Esports data"
 authors = [{ name = "Allan Cao", email = "allan@allancao.ca" }]
 license = { text = "GPL-3.0-or-later" }
