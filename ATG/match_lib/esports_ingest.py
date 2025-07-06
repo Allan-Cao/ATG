@@ -50,12 +50,12 @@ def get_puuid(participant) -> str:
     return str(participant.get("puuid", participant["accountID"]))
 
 
-def get_game_name(participant: dict) -> str | None:
+def get_game_name(participant: dict) -> str:
     return (
         participant.get("riotId", {}).get("displayName")
         or participant.get("summonerName")
         or participant.get("playerName")
-        or None
+        or ""
     )
 
 
