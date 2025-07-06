@@ -117,7 +117,10 @@ def process_match(
 
     game = Game(
         **{k: game_data.get(snake_to_camel(k)) for k in Game.INFO_DTO},
-        **{k: datetime.fromtimestamp(game_data[snake_to_camel(k)] / 1000) for k in Game.TIMESTAMPS},
+        **{
+            k: datetime.fromtimestamp(game_data[snake_to_camel(k)] / 1000)
+            for k in Game.TIMESTAMPS
+        },
         **{"id": game_id},
         **game_args,
         game_ended_in_early_surrender=early_surrender,
@@ -125,7 +128,7 @@ def process_match(
     )
 
     session.add(game)
-    session.flush() # We need to flush to ensure the game id exists in the database.
+    session.flush()  # We need to flush to ensure the game id exists in the database.
 
     for team in game_data["teams"]:
         teamDto = TeamDto(
@@ -154,20 +157,38 @@ def process_match(
             # Handle special fields that require extra processing
             special_fields = {}
             special_fields["perks"] = participant.get("perks")
-            special_fields["total_time_CC_dealt"] = int(participant.get("totalTimeCCDealt", 0))
-            special_fields["time_CC_ing_others"] = int(participant.get("timeCCingOthers", 0))
+            special_fields["total_time_CC_dealt"] = int(
+                participant.get("totalTimeCCDealt", 0)
+            )
+            special_fields["time_CC_ing_others"] = int(
+                participant.get("timeCCingOthers", 0)
+            )
             special_fields["total_gold"] = int(participant.get("goldEarned", 0))
-            special_fields["current_gold"] = int(participant.get("goldEarned", 0) - participant.get("goldSpent", 0))
+            special_fields["current_gold"] = int(
+                participant.get("goldEarned", 0) - participant.get("goldSpent", 0)
+            )
 
             source_data = dict(participant)
 
             keys_to_remove = (
-                ParticipantStat.PARTICIPANT_STAT_DTO +
-                Participant.PARTICIPANT_DTO +
-                ["perks", "totalTimeCCDealt", "timeCCingOthers", "goldEarned", "goldSpent"]
+                ParticipantStat.PARTICIPANT_STAT_DTO
+                + Participant.PARTICIPANT_DTO
+                + [
+                    "perks",
+                    "totalTimeCCDealt",
+                    "timeCCingOthers",
+                    "goldEarned",
+                    "goldSpent",
+                ]
             )
             for key in keys_to_remove:
-                camel_key = snake_to_camel(key) if key in ParticipantStat.PARTICIPANT_STAT_DTO + Participant.PARTICIPANT_DTO else key
+                camel_key = (
+                    snake_to_camel(key)
+                    if key
+                    in ParticipantStat.PARTICIPANT_STAT_DTO
+                    + Participant.PARTICIPANT_DTO
+                    else key
+                )
                 source_data.pop(camel_key, None)
 
             new_participant = Participant(game_id=game.id, **participant_dto_extraction)

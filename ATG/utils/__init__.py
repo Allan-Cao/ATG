@@ -6,7 +6,7 @@ from .constants import (
     SEASON_START,
     MINIMUM_MATCH_DURATION,
     SeriesStatus,
-    SeriesType
+    SeriesType,
 )
 
 from .helpers import camel_to_snake, snake_to_camel

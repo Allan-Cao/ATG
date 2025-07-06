@@ -19,7 +19,9 @@ class Team(Base):
     source_data = mapped_column(JSONB)
 
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     player_associations: Mapped[list["PlayerTeamAssociation"]] = relationship(
         "PlayerTeamAssociation", back_populates="team"

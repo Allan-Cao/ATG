@@ -24,6 +24,4 @@ class Series(Base):
         DateTime, default=func.now(), onupdate=func.now()
     )
 
-    __table_args__ = (
-        Index("idx_series_tournament_id", "tournament_id"),
-    )
+    __table_args__ = (Index("idx_series_tournament_id", "tournament_id"),)

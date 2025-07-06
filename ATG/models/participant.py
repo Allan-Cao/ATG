@@ -42,7 +42,9 @@ class Participant(Base):
     )
 
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     @hybrid_property
     def riot_name(self):

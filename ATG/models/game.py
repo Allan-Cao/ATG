@@ -9,7 +9,7 @@ from sqlalchemy import (
     text,
     Boolean,
     case,
-    literal
+    literal,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship, MappedColumn
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -45,12 +45,20 @@ class Game(Base):
         name for name, value in locals().items() if isinstance(value, MappedColumn)
     ]
 
-    game_creation: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    game_start_timestamp: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    game_end_timestamp: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    game_creation: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    game_start_timestamp: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    game_end_timestamp: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     TIMESTAMPS = [
-        name for name, value in locals().items() if isinstance(value, MappedColumn) and isinstance(value.column.type, DateTime)
+        name
+        for name, value in locals().items()
+        if isinstance(value, MappedColumn) and isinstance(value.column.type, DateTime)
     ]
 
     # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
@@ -63,11 +71,15 @@ class Game(Base):
     source_data = mapped_column(JSONB)
 
     # Esports Game Information
-    series_id: Mapped[str | None] = mapped_column(Text, ForeignKey("series.id"), nullable=True)
+    series_id: Mapped[str | None] = mapped_column(
+        Text, ForeignKey("series.id"), nullable=True
+    )
     series_game_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     # ParticipantDto
     participants: Mapped[list["Participant"]] = relationship(
@@ -94,7 +106,7 @@ class Game(Base):
         )
 
     @hybrid_property
-    def solo_queue(self) -> bool: # type: ignore
+    def solo_queue(self) -> bool:  # type: ignore
         return self.platform_id in list(REGIONS)
 
     @solo_queue.expression
@@ -102,12 +114,16 @@ class Game(Base):
         return cls.platform_id.in_(list(REGIONS))
 
     @hybrid_property
-    def calculated_game_type(self) -> str: # type: ignore
+    def calculated_game_type(self) -> str:  # type: ignore
         if self.solo_queue and self.queue_id == 420:
             return "SOLOQUEUE"
-        elif self.solo_queue and self.queue_id == 0: # Tournament code games
+        elif self.solo_queue and self.queue_id == 0:  # Tournament code games
             return "CUSTOM"
-        elif not self.solo_queue and self.game_name and self.game_name.lower().startswith("scrim|"):
+        elif (
+            not self.solo_queue
+            and self.game_name
+            and self.game_name.lower().startswith("scrim|")
+        ):
             return "SCRIM"
         elif not self.solo_queue:
             return "ESPORTS"
@@ -120,9 +136,12 @@ class Game(Base):
         return case(
             (cls.solo_queue.is_(True) & (cls.queue_id == 420), literal("SOLOQUEUE")),
             (cls.solo_queue.is_(True) & (cls.queue_id == 0), literal("CUSTOM")),
-            (cls.solo_queue.is_(False) & cls.game_name.ilike("scrim|%"), literal("SCRIM")),
+            (
+                cls.solo_queue.is_(False) & cls.game_name.ilike("scrim|%"),
+                literal("SCRIM"),
+            ),
             (cls.solo_queue.is_(False), literal("ESPORTS")),
-            else_=literal("")
+            else_=literal(""),
         )
 
     __table_args__ = (

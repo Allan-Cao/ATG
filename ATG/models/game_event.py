@@ -19,7 +19,9 @@ class GameEvent(Base):
     source_data = mapped_column(JSONB)
 
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     __table_args__ = (
         Index("idx_game_events_game_id", "game_id"),

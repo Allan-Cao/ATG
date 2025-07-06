@@ -8,7 +8,7 @@ class TeamStat(Base):
     __tablename__ = "team_stats"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     game_id: Mapped[str] = mapped_column(Text, ForeignKey("games.id"))
-    team_id: Mapped[int] = mapped_column(Integer) # 100 / 200
+    team_id: Mapped[int] = mapped_column(Integer)  # 100 / 200
     game_time: Mapped[int] = mapped_column(Integer)
 
     # Team stats from stats_update events
@@ -22,4 +22,6 @@ class TeamStat(Base):
     dragon_kills: Mapped[int] = mapped_column(Integer)
 
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )

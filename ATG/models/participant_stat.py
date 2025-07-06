@@ -23,8 +23,12 @@ class ParticipantStat(Base):
     kills: Mapped[int] = mapped_column(Integer)
     deaths: Mapped[int] = mapped_column(Integer)
     assists: Mapped[int] = mapped_column(Integer)
-    total_minions_killed: Mapped[int] = mapped_column(Integer) # Total *lane* minions killed.
-    neutral_minions_killed: Mapped[int] = mapped_column(Integer) # Total *jungle* minions killed.
+    total_minions_killed: Mapped[int] = mapped_column(
+        Integer
+    )  # Total *lane* minions killed.
+    neutral_minions_killed: Mapped[int] = mapped_column(
+        Integer
+    )  # Total *jungle* minions killed.
 
     # 0 if the item slot is empty. Should be a foreign key in the future.
     item_0: Mapped[int] = mapped_column(Integer, default=0)
@@ -44,10 +48,18 @@ class ParticipantStat(Base):
     magic_damage_dealt: Mapped[int | None] = mapped_column(Integer, nullable=True)
     true_damage_dealt: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    total_damage_dealt_to_champions: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    physical_damage_dealt_to_champions: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    magic_damage_dealt_to_champions: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    true_damage_dealt_to_champions: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_damage_dealt_to_champions: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
+    physical_damage_dealt_to_champions: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
+    magic_damage_dealt_to_champions: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
+    true_damage_dealt_to_champions: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
 
     total_damage_taken: Mapped[int | None] = mapped_column(Integer, nullable=True)
     physical_damage_taken: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -55,19 +67,29 @@ class ParticipantStat(Base):
     true_damage_taken: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     damage_self_mitigated: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    total_damage_shielded_on_teammates: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_damage_shielded_on_teammates: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
 
-    damage_dealt_to_buildings: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    damage_dealt_to_buildings: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
     damage_dealt_to_turrets: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    total_damage_dealt_to_champions: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_damage_dealt_to_champions: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
 
     wards_placed: Mapped[int | None] = mapped_column(Integer, nullable=True)
     wards_killed: Mapped[int | None] = mapped_column(Integer, nullable=True)
     vision_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     total_heals_on_teammates: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    total_ally_jungle_minions_killed: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    total_enemy_jungle_minions_killed: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_ally_jungle_minions_killed: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
+    total_enemy_jungle_minions_killed: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
 
     champ_level: Mapped[int | None] = mapped_column(Integer, nullable=True)
     champ_experience: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -94,7 +116,7 @@ class ParticipantStat(Base):
 
     ### The following columns require additional processing for MatchV5 inputs
     total_time_CC_dealt: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    time_CC_ing_others:  Mapped[int | None] = mapped_column(Integer, nullable=True)
+    time_CC_ing_others: Mapped[int | None] = mapped_column(Integer, nullable=True)
     current_gold: Mapped[int | None] = mapped_column(Integer, nullable=True)
     total_gold: Mapped[int | None] = mapped_column(Integer, nullable=True)
     perks: Mapped[dict | None] = mapped_column(JSONB)
@@ -102,7 +124,9 @@ class ParticipantStat(Base):
     ### The following columns must stay nullable
     # stats_update specific column
     position_x: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    position_y: Mapped[int | None] = mapped_column(Integer, nullable=True) # also refered to as position z
+    position_y: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )  # also refered to as position z
     alive: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     respawn_time: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
@@ -113,9 +137,7 @@ class ParticipantStat(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     # game_time is NULL for match_v5 summaries
     game_time: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    participant_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("participants.id")
-    )
+    participant_id: Mapped[int] = mapped_column(Integer, ForeignKey("participants.id"))
 
     participant: Mapped["Participant"] = relationship(
         "Participant", back_populates="stats"
@@ -174,4 +196,6 @@ class ParticipantStat(Base):
     )
 
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )

@@ -16,10 +16,14 @@ class TeamDto(Base):
     team_id: Mapped[int] = mapped_column(Integer)
     win: Mapped[bool] = mapped_column(Boolean)
 
-    fk_team_id: Mapped[str | None] = mapped_column(Text, ForeignKey("teams.id"), nullable=True)
+    fk_team_id: Mapped[str | None] = mapped_column(
+        Text, ForeignKey("teams.id"), nullable=True
+    )
 
     # Debug
-    updated: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
     participants: Mapped[list["Participant"]] = relationship(
         "Participant",
