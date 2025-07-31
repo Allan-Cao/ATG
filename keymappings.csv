@@ -1,0 +1,230 @@
+Database Column Name,Match V5 Name,Example,stats_update Event Key Path,Example,Match V5 Timeline Examples,example
+kills,kills,1,stats.CHAMPIONS_KILLED,6,,
+deaths,deaths,5,stats.NUM_DEATHS,1,,
+assists,assists,2,stats.ASSISTS,9,,
+total_minions_killed,totalMinionsKilled,168,stats.MINIONS_KILLED,187,minionsKilled,0
+neutral_minions_killed,neutralMinionsKilled,0,stats.NEUTRAL_MINIONS_KILLED,8,,
+item_0,item0,3068,items,"[{'itemID': 3143, 'itemCooldown': 0}, {'itemID': 3111, 'itemCooldown': 0}, {'itemID': 6664, 'itemCooldown': 0}, {'itemID': 6662, 'itemCooldown': 1.232177734375}, {'itemID': 3364, 'itemStacks': 1, 'itemCooldown': 0}]",,
+item_1,item1,2031,needs to be parsed out,,,
+item_2,item2,3047,needs to be parsed out,,,
+item_3,item3,2504,needs to be parsed out,,,
+item_4,item4,1054,needs to be parsed out,,,
+item_5,item5,0,needs to be parsed out,,,
+item_6,item6,3340,needs to be parsed out,,,
+summoner_1_id,summoner1Id,4,summonerSpell1Name,"Needs to be parsed from ""SummonerHaste"" (name)
+",,
+summoner_2_id,summoner2Id,12,summonerSpell2Name,"Also needs to be parsed from (""S12_SummonerTeleportUpgrade"") for examples.
+
+
+
+
+
+
+
+
+",,
+total_damage_dealt,totalDamageDealt,115488,stats.TOTAL_DAMAGE_DEALT,114523.1172,damageStats/totalDamageDone,71
+physical_damage_dealt,physicalDamageDealt,54356,stats.PHYSICAL_DAMAGE_DEALT_PLAYER,85937.53906,damageStats/physicalDamageDone,71
+magic_damage_dealt,magicDamageDealt,52215,stats.MAGIC_DAMAGE_DEALT_PLAYER,24673.16992,damageStats/magicDamageDone,0
+true_damage_dealt,trueDamageDealt,8917,stats.TRUE_DAMAGE_DEALT_PLAYER,3912.226563,damageStats/trueDamageDone,0
+total_damage_dealt_to_champions,totalDamageDealtToChampions,10668,stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS,18962.11914,damageStats/totalDamageDoneToChampions,71
+physical_damage_dealt_to_champions,physicalDamageDealtToChampions,3951,stats.PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS,13608.17383,damageStats/physicalDamageDoneToChampions,71
+magic_damage_dealt_to_champions,magicDamageDealtToChampions,6717,stats.MAGIC_DAMAGE_DEALT_TO_CHAMPIONS,3463.072754,damageStats/magicDamageDoneToChampions,0
+true_damage_dealt_to_champions,trueDamageDealtToChampions,0,stats.TRUE_DAMAGE_DEALT_TO_CHAMPIONS,1890.878784,damageStats/trueDamageDoneToChampions,0
+total_damage_taken,totalDamageTaken,21272,stats.TOTAL_DAMAGE_TAKEN,27725.86914,damageStats/totalDamageTaken,56
+physical_damage_taken,physicalDamageTaken,9664,stats.PHYSICAL_DAMAGE_TAKEN,14603.93555,damageStats/physicalDamageTaken,0
+magic_damage_taken,magicDamageTaken,8797,stats.MAGIC_DAMAGE_TAKEN,11468.73047,damageStats/magicDamageTaken,0
+true_damage_taken,trueDamageTaken,2810,stats.TRUE_DAMAGE_TAKEN,1653.217529,damageStats/trueDamageTaken,56
+damage_self_mitigated,damageSelfMitigated,18658,stats.TOTAL_DAMAGE_SELF_MITIGATED,37121.86719,,
+total_damage_shielded_on_teammates,totalDamageShieldedOnTeammates,0,stats.TOTAL_DAMAGE_SHIELDED_ON_TEAMMATES,412.2529602,,
+damage_dealt_to_buildings,damageDealtToBuildings,5139,stats.TOTAL_DAMAGE_DEALT_TO_BUILDINGS,1037.663452,,
+damage_dealt_to_turrets,damageDealtToTurrets,5139,stats.TOTAL_DAMAGE_DEALT_TO_TURRETS,1037.663452,,
+damage_dealt_to_objectives,damageDealtToObjectives,5200,stats.TOTAL_DAMAGE_DEALT_TO_OBJECTIVES,2840.03833,,
+total_time_CC_dealt,totalTimeCCDealt,391,stats.TOTAL_TIME_CROWD_CONTROL_DEALT,903.5983887,,
+time_ccing_others,timeCCingOthers,17,stats.TIME_CCING_OTHERS,35.96367264,,
+wards_placed,wardsPlaced,7,stats.WARD_PLACED,8,,
+wards_killed,wardsKilled,0,stats.WARD_KILLED,2,,
+vision_score,visionScore,12,stats.VISION_SCORE,18.93361282,,
+total_heals_on_teammates,totalHealsOnTeammates,0,stats.TOTAL_HEAL_ON_TEAMMATES,0,,
+total_ally_jungle_minions_killed,totalAllyJungleMinionsKilled,0,stats.NEUTRAL_MINIONS_KILLED_YOUR_JUNGLE,0,jungleMinionsKilled,0
+total_enemy_jungle_minions_killed,totalEnemyJungleMinionsKilled,0,stats.NEUTRAL_MINIONS_KILLED_ENEMY_JUNGLE,4,,
+champ_level,champLevel,14,level,15,level,1
+champ_experience,champExperience,11749,XP,14415,xp,0
+current_gold,goldEarned - goldSpent,,currentGold,1425,currentGold,0
+total_gold,goldEarned,7450,totalGold,11120,totalGold,500
+perks,perks,"{'statPerks': {'defense': 5001, 'flex': 5001, 'offense': 5005},
+ 'styles': [{'description': 'primaryStyle',
+   'selections': [{'perk': 8437, 'var1': 734, 'var2': 425, 'var3': 0},
+    {'perk': 8446, 'var1': 2422, 'var2': 0, 'var3': 0},
+    {'perk': 8473, 'var1': 510, 'var2': 0, 'var3': 0},
+    {'perk': 8451, 'var1': 235, 'var2': 0, 'var3': 0}],
+   'style': 8400},
+  {'description': 'subStyle',
+   'selections': [{'perk': 8345, 'var1': 3, 'var2': 0, 'var3': 288},
+    {'perk': 8304, 'var1': 11, 'var2': 1, 'var3': 5}],
+   'style': 8300}]}","stats.perks0, stats.perks0_var1 and so on",Should be a JSON list for stats that start with PERKS,,
+basic_pings,basicPings,0,stats.BASIC_PINGS,0,,
+command_pings,commandPings,0,stats.COMMAND_PINGS,30,,
+danger_pings,dangerPings,0,stats.DANGER_PINGS,0,,
+get_back_pings,getBackPings,0,stats.GET_BACK_PINGS,1,,
+retreat_pings,retreatPings,8,stats.RETREAT_PINGS,2,,
+on_my_way_pings,onMyWayPings,0,stats.ON_MY_WAY_PINGS,57,,
+assist_me_pings,assistMePings,5,stats.ASSIST_ME_PINGS,1,,
+enemy_missing_pings,enemyMissingPings,10,stats.ENEMY_MISSING_PINGS,17,,
+push_pings,pushPings,0,stats.PUSH_PINGS,0,,
+all_in_pings,allInPings,0,stats.ALL_IN_PINGS,1,,
+hold_pings,holdPings,0,stats.HOLD_PINGS,0,,
+vision_cleared_pings,visionClearedPings,0,stats.VISION_CLEARED_PINGS,0,,
+enemy_vision_pings,enemyVisionPings,0,stats.ENEMY_VISION_PINGS,0,,
+need_vision_pings,needVisionPings,0,stats.NEED_VISION_PINGS,0,,
+position_x,NULLABLE,,position/x,12354,position/x,1766
+position_y,NULLABLE,,position/z,12903,position/y,11719
+alive,NULLABLE,,alive,TRUE,,
+respawn_time,NULLABLE,,respawnTimer,0,,
+,,,,,,
+,baronKills,0,,,championStats/abilityHaste,0
+,championSkinId,1,abilityPower,30,championStats/abilityPower,0
+,championTransform,0,armor,235,championStats/armor,33
+,consumablesPurchased,1,armorPenetration,0,championStats/armorPen,0
+,detectorWardsPlaced,0,armorPenetrationPercent,0,championStats/armorPenPercent,0
+,doubleKills,0,attackDamage,135,championStats/attackDamage,69
+,dragonKills,0,attackSpeed,148,championStats/attackSpeed,110
+,eligibleForProgression,TRUE,armorPenetrationPercentBonus,0,championStats/bonusArmorPenPercent,0
+,firstBloodAssist,FALSE,magicPenetrationPercentBonus,0,championStats/bonusMagicPenPercent,0
+,firstBloodKill,FALSE,ccReduction,30,championStats/ccReduction,0
+,firstTowerAssist,FALSE,cooldownReduction,0,championStats/cooldownReduction,0
+,firstTowerKill,FALSE,health,3352,championStats/health,756
+,individualPosition,TOP,healthMax,3974,championStats/healthMax,803
+,inhibitorKills,0,healthRegen,91,championStats/healthRegen,28
+,inhibitorTakedowns,0,lifeSteal,0,championStats/lifesteal,0
+,inhibitorsLost,0,magicPenetration,0,championStats/magicPen,0
+,itemsPurchased,17,magicPenetrationPercent,0,championStats/magicPenPercent,0
+,killingSprees,0,magicResist,126,championStats/magicResist,32
+,lane,TOP,stats.TOTAL_TIME_CROWD_CONTROL_DEALT_TO_CHAMPIONS,174.214859,championStats/movementSpeed,335
+,largestCriticalStrike,0,,,championStats/omnivamp,0
+,largestKillingSpree,0,,,championStats/physicalVamp,0
+,largestMultiKill,1,primaryAbilityResource,1223,championStats/power,319
+,longestTimeSpentLiving,632,primaryAbilityResourceMax,1235,championStats/powerMax,341
+,nexusKills,0,primaryAbilityResourceRegen,214,championStats/powerRegen,16
+,nexusLost,1,spellVamp,0,championStats/spellVamp,0
+,nexusTakedowns,0,goldPerSecond,0,goldPerSecond,0
+,objectivesStolen,0,,,timeEnemySpentControlled,2037
+,objectivesStolenAssists,0,goldStats,json,,
+,pentaKills,0,ability1Level,5,,
+,placement,0,ability2Level,5,,
+,playerAugment1,0,ability3Level,3,,
+,playerAugment2,0,ability4Level,2,,
+,playerAugment3,0,shutdownValue,400,,
+,playerAugment4,0,stackingBuffs,"[{'id': 15062820, 'stacks': 18}, {'id': 2761313364, 'stacks': 3}]",,
+,playerAugment5,0,XPForNextLevel,14700,,
+,playerAugment6,0,ability1CooldownRemaining,0,,
+,playerSubteamId,0,ability2CooldownRemaining,0,,
+,profileIcon,5170,ability3CooldownRemaining,3.945556641,,
+,quadraKills,0,ability4CooldownRemaining,0,,
+,role,SOLO,ultimateCooldownRemaining,0,,
+,sightWardsBoughtInGame,0,summonerSpell1CooldownRemaining,0,,
+,spell1Casts,60,summonerSpell2CooldownRemaining,236.9299316,,
+,spell2Casts,38,playerName,NIPshanji,,
+,spell3Casts,15,,,,
+,spell4Casts,11,,,,
+,subteamPlacement,0,,,,
+,summoner1Casts,1,,,,
+,summoner2Casts,2,,,,
+,summonerLevel,571,,,,
+,teamEarlySurrendered,FALSE,,,,
+,timePlayed,1362,,,,
+,totalHeal,1123,,,,
+,totalTimeSpentDead,178,,,,
+,totalUnitsHealed,1,,,,
+,tripleKills,0,,,,
+,turretKills,2,,,,
+,turretTakedowns,2,,,,
+,turretsLost,5,,,,
+,unrealKills,0,,,,
+,visionWardsBoughtInGame,0,,,,
+,PlayerScore0,0,,,,
+,PlayerScore1,0,,,,
+,PlayerScore10,0,,,,
+,PlayerScore11,0,,,,
+,PlayerScore2,0,,,,
+,PlayerScore3,0,,,,
+,PlayerScore4,0,,,,
+,PlayerScore5,0,,,,
+,PlayerScore6,0,,,,
+,PlayerScore7,0,,,,
+,PlayerScore8,0,,,,
+,PlayerScore9,0,,,,
+,challenges,(json),,,,
+,missions,(json),,,,
+,deleted,,,,,
+,championName,Ornn,,,,
+,gameEndedInEarlySurrender,FALSE,,,,
+,gameEndedInSurrender,TRUE,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,deleted,,,
+,,,ability1Name,KSanteQ,,
+,,,ability2Name,KSanteW,,
+,,,ability3Name,KSanteE,,
+,,,ability4Name,KSanteR,,
+,,,ultimateName,KSanteR,,
+,,,,,,
+,,,stats.PERK0,0,,
+,,,stats.PERK0_VAR1,0,,
+,,,stats.PERK0_VAR2,0,,
+,,,stats.PERK0_VAR3,0,,
+,,,stats.PERK1,0,,
+,,,stats.PERK1_VAR1,0,,
+,,,stats.PERK1_VAR2,0,,
+,,,stats.PERK1_VAR3,0,,
+,,,stats.PERK2,0,,
+,,,stats.PERK2_VAR1,0,,
+,,,stats.PERK2_VAR2,0,,
+,,,stats.PERK2_VAR3,0,,
+,,,stats.PERK3,0,,
+,,,stats.PERK3_VAR1,0,,
+,,,stats.PERK3_VAR2,0,,
+,,,stats.PERK3_VAR3,0,,
+,,,stats.PERK4,0,,
+,,,stats.PERK4_VAR1,0,,
+,,,stats.PERK4_VAR2,0,,
+,,,stats.PERK4_VAR3,0,,
+,,,stats.PERK5,0,,
+,,,stats.PERK5_VAR1,0,,
+,,,stats.PERK5_VAR2,0,,
+,,,stats.PERK5_VAR3,0,,
