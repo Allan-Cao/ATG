@@ -58,7 +58,19 @@ Edit the .env file with your Riot API key and database connection string. The [p
 python main.py
 ```
 
-Example usage (linking a pro player by name to a solo queue account)
+### Local database
+
+A `docker-compose.yml` is provided to run the PostgreSQL backend locally, reading its credentials from the same `.env`.
+
+```bash
+docker compose up -d
+```
+
+Note: `alembic upgrade head` cannot build a database from scratch, as the migration history begins against an already populated database. `get_session_factory` creates the schema on first connection; follow it with `alembic stamp head` to track migrations.
+
+### Example usage
+> Linking a pro player by name to a solo queue account
+
 ```python
 import os
 from sqlalchemy import select
