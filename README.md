@@ -49,13 +49,13 @@ It is recommended to use a [virtual environment](https://packaging.python.org/en
 
 Setup dependencies
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 Edit the .env file with your Riot API key and database connection string. The [psycopg3 database driver](https://www.psycopg.org/psycopg3/docs/basic/install.html) is installed if this code is installed as a library and is recommended.
 
 ```bash
-python main.py
+uv run main.py
 ```
 
 ### Local database
@@ -112,11 +112,11 @@ alembic revision --autogenerate -m "changes"
 alembic upgrade head
 ```
 
-## Poetry
+## uv
 Commands to publish updates on PyPi
 ```bash
-poetry build
-poetry publish
+uv build
+uv publish
 ```
 
 ## Legal
