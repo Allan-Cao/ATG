@@ -10,7 +10,13 @@ import threading
 
 
 class RiotRateLimiter:
-    """Simple rate limiter for Riot API based on response headers."""
+    """Simple rate limiter for the Riot API based on response headers.
+
+    :ivar limits: Rate limit state keyed by endpoint (method and region).
+    :vartype limits: dict[str, dict]
+    :ivar lock: Lock guarding access to :attr:`limits`.
+    :vartype lock: threading.Lock
+    """
 
     def __init__(self):
         # Store rate limit info by endpoint key (method+region)
@@ -19,7 +25,14 @@ class RiotRateLimiter:
         self.lock = threading.Lock()
 
     def update_limits(self, endpoint_key: str, headers: Dict[str, str]) -> None:
-        """Update rate limit information from response headers."""
+        """Update rate limit information from response headers.
+
+        :param endpoint_key: Key identifying the endpoint the headers came from.
+        :type endpoint_key: str
+        :param headers: Response headers from a Riot API call.
+        :type headers: dict[str, str]
+        :rtype: None
+        """
         with self.lock:
             # Track when we should retry if rate limited
             retry_after = headers.get("Retry-After")
@@ -83,7 +96,13 @@ class RiotRateLimiter:
             self.limits[endpoint_key] = limit_data
 
     def should_wait(self, endpoint_key: str) -> float:
-        """Determine if/how long we should wait before making another request."""
+        """Determine if/how long we should wait before making another request.
+
+        :param endpoint_key: Key identifying the endpoint to be called.
+        :type endpoint_key: str
+        :returns: The number of seconds to wait, or ``0`` if no wait is needed.
+        :rtype: float
+        """
         with self.lock:
             if endpoint_key not in self.limits:
                 return 0
@@ -141,12 +160,17 @@ _rate_limiter = RiotRateLimiter()
 
 
 def riot_api_limiter(endpoint_key: Optional[str] = None):
-    """
-    Decorator that handles Riot API rate limiting based on response headers.
+    """Build a decorator that handles Riot API rate limiting based on response headers.
 
-    Args:
-        endpoint_key: Optional key to identify this endpoint. If not provided,
-                     the function name will be used.
+    The decorated function sleeps before the call when the tracked limits are
+    close to exhaustion, records the limits returned by the response, and
+    retries once after sleeping when the API answers with ``429``.
+
+    :param endpoint_key: Optional key to identify this endpoint. If not
+        provided, the function name will be used.
+    :type endpoint_key: str | None
+    :returns: A decorator applying rate limiting to the wrapped function.
+    :rtype: collections.abc.Callable
     """
 
     def decorator(func: Callable) -> Callable:
@@ -186,7 +210,12 @@ def riot_api_limiter(endpoint_key: Optional[str] = None):
 
 
 def print_rate_limit_headers(response):
-    """Helper function to print rate limit headers from a response."""
+    """Print the rate limit headers from a response.
+
+    :param response: Response whose rate limit headers should be printed.
+    :type response: httpx2.Response
+    :rtype: None
+    """
     print("\nRate Limit Headers:")
     for key, value in response.headers.items():
         if "rate" in key.lower() or "retry" in key.lower():

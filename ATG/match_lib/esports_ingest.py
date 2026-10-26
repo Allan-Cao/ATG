@@ -4,13 +4,12 @@ from sqlalchemy import select
 
 
 def create_player(name: str) -> Player:
-    """Creates a player object
+    """Create a player object.
 
-    Args:
-        name (str): Player name
-
-    Returns:
-        Player: Created player object
+    :param name: Player name.
+    :type name: str
+    :returns: The created player object.
+    :rtype: ATG.models.Player
     """
     return Player(name=name)
 
@@ -23,18 +22,23 @@ def create_account(
     region: str = "TOURNAMENT",
     skip_update: bool = True,
 ) -> Account:
-    """Creates an account object
+    """Create an account object.
 
-    Args:
-        puuid (str): Account identifier (PUUID / Account ID)
-        name (str): Account name
-        tagline (str): Account tagline
-        player_id (int): Player ID (foreign key)
-        region (str, optional): Account region. Defaults to "TOURNAMENT".
-        skip_update (bool, optional): Should be updated automatically?. Defaults to True.
-
-    Returns:
-        Account: Created account object
+    :param puuid: Account identifier (PUUID / Account ID).
+    :type puuid: str
+    :param name: Account name.
+    :type name: str
+    :param tagline: Account tagline.
+    :type tagline: str
+    :param player_id: Player ID (foreign key).
+    :type player_id: int
+    :param region: Account region, defaults to ``"TOURNAMENT"``.
+    :type region: str
+    :param skip_update: Whether the account should be skipped when updating
+        account names automatically, defaults to ``True``.
+    :type skip_update: bool
+    :returns: The created account object.
+    :rtype: ATG.models.Account
     """
     return Account(
         puuid=puuid,
@@ -73,15 +77,18 @@ def parse_game_participants(
     winning_team_id: int,
     NAME_ID_MAP: dict[str, int],
 ) -> list[Participant]:
-    """Parses the participants into a list of Participant objects
+    """Parse the participants into a list of :class:`~ATG.models.Participant` objects.
 
-    Args:
-        participants (list[dict]): List of game participants
-        winning_team_id (int): 100 or 200 (blue/red winners)
-        NAME_ID_MAP (dict[str, int]): champion name -> champion id map
-
-    Returns:
-        list[Participant]: Parsed participant objects
+    :param participants: List of game participants.
+    :type participants: list[dict]
+    :param game_id: Riot's game ID number (foreign key).
+    :type game_id: str
+    :param winning_team_id: ``100`` or ``200`` (blue/red winners).
+    :type winning_team_id: int
+    :param NAME_ID_MAP: Champion name to champion ID map.
+    :type NAME_ID_MAP: dict[str, int]
+    :returns: The parsed participant objects.
+    :rtype: list[ATG.models.Participant]
     """
     game_participants = []
     for participant in participants:
@@ -102,13 +109,12 @@ def parse_game_participants(
 
 
 def get_common_prefix_length(player_names: list[str]) -> int:
-    """Gets the number of charaters shared in the prefix of all items of a list
+    """Get the number of characters shared in the prefix of all items of a list.
 
-    Args:
-        player_names (list[str]): A list of player names
-
-    Returns:
-        int: The length of the shared prefix
+    :param player_names: A list of player names.
+    :type player_names: list[str]
+    :returns: The length of the shared prefix.
+    :rtype: int
     """
     common_prefix_length = 0
     for chars in zip(*player_names):
@@ -120,11 +126,12 @@ def get_common_prefix_length(player_names: list[str]) -> int:
 
 
 def create_missing_accounts(session: Session, participants: dict):
-    """Helper function to parse a list of participants and add to the session any missing players/accounts.
+    """Parse a list of participants, adding any missing players/accounts to the session.
 
-    Args:
-        session (Session): Active SQLAlchemy session object
-        participants (dict): A match-v5 like participant list
+    :param session: Active SQLAlchemy session object.
+    :type session: sqlalchemy.orm.Session
+    :param participants: A MatchV5-like participant list.
+    :type participants: list[dict]
     """
     stored_puuids = session.scalars(select(Account.puuid)).all()
     for participant in participants:

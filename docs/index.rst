@@ -22,6 +22,8 @@ LoL Esports.
    :maxdepth: 2
    :caption: Contents:
 
+   api
+
 Features
 ========
 

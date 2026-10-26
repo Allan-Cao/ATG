@@ -7,9 +7,10 @@ MINIMUM_MATCH_DURATION = timedelta(minutes=10)
 
 
 class SeriesType(StrEnum):
-    """Enum to represent how the series types are represented in the GRID API
+    """Enum to represent how the series types are represented in the GRID API.
 
-    This originally was found in central_data.enums's SeriesType"""
+    This originally was found in ``central_data.enums``'s ``SeriesType``.
+    """
 
     COMPETITIVE = auto()
     ESPORTS = auto()
@@ -20,7 +21,8 @@ class SeriesType(StrEnum):
 class SeriesStatus(StrEnum):
     """Enum to represent many of the possible states that an esports series may be in.
 
-    Probably won't use all of them immediately but this should serve as a pretty good basis.
+    Probably won't use all of them immediately but this should serve as a
+    pretty good basis.
     """
 
     ###    Pre-game states    ###

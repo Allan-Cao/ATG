@@ -66,6 +66,16 @@ TIERS = StrEnum(
 
 
 def parse_match_id(match_id: str) -> tuple[str, str]:
+    """Split a match ID into its region and game ID halves.
+
+    :param match_id: Match ID of the form ``"<REGION>_<GAME ID>"``, such as
+        ``"NA1_4567890123"``.
+    :type match_id: str
+    :returns: The region and the game ID.
+    :rtype: tuple[str, str]
+    :raises ValueError: If ``match_id`` is not two underscore-separated parts,
+        or the region is not a known platform routing value.
+    """
     split = match_id.split("_")
     if len(split) != 2:
         raise ValueError(f"Unable to parse {match_id}")
@@ -75,5 +85,12 @@ def parse_match_id(match_id: str) -> tuple[str, str]:
 
 
 def riot_client(api_key: str, **kwargs) -> Client:
-    """Builds a client carrying the API key, kwargs are passed to httpx2.Client"""
+    """Build a client carrying the Riot API key.
+
+    :param api_key: Riot API key, sent as the ``X-Riot-Token`` header.
+    :type api_key: str
+    :param kwargs: Additional keyword arguments passed to :class:`httpx2.Client`.
+    :returns: A client preconfigured with the API key and default headers.
+    :rtype: httpx2.Client
+    """
     return Client(headers={"X-Riot-Token": api_key, **headers}, **kwargs)

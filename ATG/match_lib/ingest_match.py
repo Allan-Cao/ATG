@@ -10,7 +10,19 @@ from ..utils import SEASON_START, snake_to_camel
 
 
 def update_account_names(session: _Session, client: Client, days: int = 7):
-    """Updates player account names/taglines"""
+    """Update player account names/taglines.
+
+    Accounts flagged with ``skip_update`` or that are not solo queue accounts
+    are left untouched.
+
+    :param session: Active SQLAlchemy session object.
+    :type session: sqlalchemy.orm.Session
+    :param client: Client carrying the Riot API key.
+    :type client: httpx2.Client
+    :param days: Only refresh accounts that have not been updated within this
+        many days, defaults to ``7``.
+    :type days: int
+    """
     update_delta = datetime.now() - timedelta(days=days)
     accounts_to_update = list(
         session.scalars(
@@ -47,6 +59,30 @@ def insert_match_history(
     start_latest: bool = True,
     queue_id: int = 420,
 ):
+    """Fetch and store any new games for each of a player's accounts.
+
+    Accounts that are not solo queue accounts, or that are flagged with
+    ``skip_update``, are skipped. Games already present in the database are
+    ignored, and a match that fails to process is reported without
+    interrupting the remaining matches.
+
+    :param session: Active SQLAlchemy session object.
+    :type session: sqlalchemy.orm.Session
+    :param client: Client carrying the Riot API key.
+    :type client: httpx2.Client
+    :param player: Player whose accounts should be updated.
+    :type player: ATG.models.Player
+    :param start_time: Epoch timestamp to start the search from, defaults to
+        :data:`~ATG.utils.SEASON_START`. Ignored unless ``start_latest`` is
+        ``False``.
+    :type start_time: int
+    :param start_latest: Start from each account's most recent stored game
+        instead of ``start_time``, defaults to ``True``.
+    :type start_latest: bool
+    :param queue_id: Riot queue ID to restrict the search to, defaults to
+        ``420`` (ranked solo/duo).
+    :type queue_id: int
+    """
     existing_ids = set(session.scalars(select(Game.id)).all())
     for account in player.accounts or []:
         if not account.solo_queue_account or account.skip_update:
@@ -96,13 +132,18 @@ def process_match(
     game_data: dict,
     game_args: dict = {},
 ) -> int | None:
-    """Function to process game data from MatchV5-like sources. If the game already exists, processing will be skipped.
+    """Process game data from MatchV5-like sources.
 
-    Args:
-        session: ORM Session object
-        game_id: Riot's Game ID number
-        match_data: MatchV5-like Dictionary to be processed
-        game_args: Additional fields to be passed to the game object
+    If the game already exists, processing will be skipped.
+
+    :param session: ORM session object.
+    :type session: sqlalchemy.orm.Session
+    :param game_id: Riot's game ID number.
+    :type game_id: str
+    :param game_data: MatchV5-like dictionary to be processed.
+    :type game_data: dict
+    :param game_args: Additional fields to be passed to the game object.
+    :type game_args: dict
     """
     if session.query(Game).filter(Game.id == game_id).one_or_none() is not None:
         return
