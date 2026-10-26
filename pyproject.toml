@@ -37,6 +37,7 @@ dev = [
 docs = [
     "sphinx>=9.0.4",
     "sphinx-autobuild>=2025.8.25",
+    "sphinx-copybutton>=0.5.2",
 ]
 
 [build-system]
