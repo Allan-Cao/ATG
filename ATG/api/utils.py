@@ -1,5 +1,6 @@
 from typing import Dict, Literal
 from enum import StrEnum
+from httpx2 import Client
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
@@ -71,3 +72,8 @@ def parse_match_id(match_id: str) -> tuple[str, str]:
     if split[0] not in REGIONS:
         raise ValueError(f"Unknown region {split[0]} received")
     return split[0], split[1]
+
+
+def riot_client(api_key: str, **kwargs) -> Client:
+    """Builds a client carrying the API key, kwargs are passed to httpx2.Client"""
+    return Client(headers={"X-Riot-Token": api_key, **headers}, **kwargs)

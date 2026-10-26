@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 from ATG.match_lib import insert_match_history, update_account_names
+from ATG.api import riot_client
 from ATG.database import get_session_factory
 from ATG.models import Player, Account
 from sqlalchemy import exists
@@ -13,8 +14,8 @@ DB_CONNECTION = os.environ["DB_CONNECTION"]
 
 Session = get_session_factory(DB_CONNECTION)
 
-with Session() as session:
-    update_account_names(session, RIOT_API)
+with riot_client(RIOT_API) as client, Session() as session:
+    update_account_names(session, client)
     PLAYERS = (
         session.query(Player)
         .filter(
@@ -25,4 +26,4 @@ with Session() as session:
         .all()
     )
     for player in PLAYERS:
-        insert_match_history(session, player, RIOT_API)
+        insert_match_history(session, client, player)

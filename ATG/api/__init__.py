@@ -16,7 +16,7 @@ from .summoner_v4 import (
     get_summoner_by_puuid,
     get_summoner_by_summoner_id,
 )
-from .utils import parse_match_id, REGIONS, QUEUES, DIVISIONS, TIERS
+from .utils import riot_client, parse_match_id, REGIONS, QUEUES, DIVISIONS, TIERS
 
 
 __all__ = [
@@ -38,6 +38,7 @@ __all__ = [
     "get_summoner_by_account_id",
     "get_summoner_by_puuid",
     "get_summoner_by_summoner_id",
+    "riot_client",
     "parse_match_id",
     "REGIONS",
     "QUEUES",
