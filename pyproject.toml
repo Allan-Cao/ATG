@@ -17,6 +17,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/Allan-Cao/ATG.git"
+Documentation = "https://atg.readthedocs.io/en/latest/"
 Issues = "https://github.com/Allan-Cao/ATG/issues"
 
 [dependency-groups]
@@ -27,6 +28,7 @@ dev = [
 ]
 docs = [
     "sphinx>=9.0.4",
+    "sphinx-autobuild>=2025.8.25",
 ]
 
 [build-system]
