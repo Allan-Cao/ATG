@@ -16,6 +16,7 @@ A lightweight, decorator-based rate limiter for Riot API requests that respects 
 ```python
 from ATG.rate_limiter import riot_api_limiter
 
+
 @riot_api_limiter(endpoint_key="my_endpoint")
 def my_riot_api_function(region: str, api_key: str):
     # Your API call here

@@ -23,7 +23,7 @@ Issues = "https://github.com/Allan-Cao/ATG/issues"
 dev = [
     "python-dotenv>=1.1.0,<2.0.0",
     "alembic>=1.16.2,<2.0.0",
-    "black>=25.1.0,<27.0.0",
+    "ruff>=0.17.2",
 ]
 
 [build-system]

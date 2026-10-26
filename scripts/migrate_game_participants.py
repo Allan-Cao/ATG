@@ -6,6 +6,7 @@ sys.path.append("..")
 
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from sqlalchemy import *
@@ -30,7 +31,6 @@ role_map = {
     8: "MIDDLE",
     9: "BOTTOM",
     10: "UTILITY",
-
 }
 
 with Session() as session:
@@ -42,7 +42,9 @@ with Session() as session:
     champion_alias_to_name = {champ.alias: champ.name for champ in champions}
 
     games = session.scalars(select(Game)).all()
-    game_id_to_duration = {game.id: game.game_duration for game in games if game.game_duration is not None}
+    game_id_to_duration = {
+        game.id: game.game_duration for game in games if game.game_duration is not None
+    }
 
     created_count = 0
     updated_count = 0
@@ -51,20 +53,24 @@ with Session() as session:
     for old_part in tqdm(old_participants):
         champion_name = champion_alias_to_name.get(old_part.champion)
         if not champion_name:
-            print(f"Warning: Champion alias {old_part.champion} not found in Champions table")
+            print(
+                f"Warning: Champion alias {old_part.champion} not found in Champions table"
+            )
             skipped_count += 1
             continue
 
         champion_id = champion_name_to_id.get(champion_name)
         if not champion_id:
-            print(f"Warning: Champion name {champion_name} not found in Champions table")
+            print(
+                f"Warning: Champion name {champion_name} not found in Champions table"
+            )
             skipped_count += 1
             continue
 
         existing_participant = session.scalar(
             select(Participant).where(
-                (Participant.game_id == old_part.game_id) &
-                (Participant.puuid == old_part.puuid)
+                (Participant.game_id == old_part.game_id)
+                & (Participant.puuid == old_part.puuid)
             )
         )
 
@@ -102,24 +108,20 @@ with Session() as session:
                 champion_name=champion_name,
                 team_id=old_part.side,
                 participant_id=old_part.participant_id,
-
                 riot_id_game_name=old_part.display_name,
                 riot_id_tagline="eProd",
                 summoner_id=old_part.account_id,
                 summoner_name=old_part.display_name,
-
                 # Game stats
                 win=old_part.win,
                 team_position=role_map[old_part.participant_id],
-
                 # Set game_duration from the game if available
                 game_duration=game_duration,
-
                 # Initialize empty JSONs
                 challenges={},
                 missions={},
                 perks={},
-                participant={}
+                participant={},
             )
 
             session.add(new_part)
@@ -137,4 +139,5 @@ with Session() as session:
         session.rollback()
         print(f"Error during migration: {str(e)}")
         import traceback
+
         traceback.print_exc()
