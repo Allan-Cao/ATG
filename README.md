@@ -36,11 +36,11 @@ Here is are the major differences / exceptions that should be noted.
 - [x] Properly handle API error codes
 - [x] Add the ability to store draft / other available esports game information
 - [x] Open source GRID API code and GRID insertion scripts
-- [ ] Handle database sessions and API keys better using dependency injection or something other than passing session objects around. I kind of like the current functional nature of the API
+- [ ] Handle database sessions better than passing session objects around. I kind of like the current functional nature of the API
 - [ ] Normalize database objects. Specifically the series/tournament-game relationship
 - [ ] Reduce the number of nullable columns where possible. This is especially a problem on the game table
 - [ ] Introduce enums where appropriate
-- [ ] Transition to HTTPX > requests
+- [x] Transition to HTTPX > requests
 - [ ] Remove or update the player_team_association table. I currently don't use it but it's definitely useful and should be revisited in the future.
 
 ## Setup & Example Usage
@@ -76,10 +76,10 @@ import os
 from sqlalchemy import select
 
 from ATG.database import get_session_factory
-from ATG.api import get_account_by_riot_id
+from ATG.api import riot_client, get_account_by_riot_id
 from ATG.models import Player, Account
 
-RIOT_API = os.environ["RIOT_API"]
+client = riot_client(os.environ["RIOT_API"])
 Session = get_session_factory(os.environ["PROD_DB"])
 
 def link_pro(pro_name, soloq):
@@ -90,7 +90,7 @@ def link_pro(pro_name, soloq):
             print(f"Unable to find associated player for {pro_name}")
             return
         name, tagline = soloq.split("#")
-        details = get_account_by_riot_id(name, tagline, RIOT_API).json()
+        details = get_account_by_riot_id(client, name, tagline).json()
         new_acc = Account(puuid=details['puuid'], name=details['gameName'], tagline=details['tagLine'], region='NA1', player_id=player.id)
         session.add(new_acc)
         try:

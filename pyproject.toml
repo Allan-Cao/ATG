@@ -1,18 +1,18 @@
 [project]
 name = "ATG-lib"
-version = "1.5.7"
+version = "1.6.0"
 description = "Python library to process solo queue game data with comprehensive database models to additionally store LoL Esports data"
 authors = [{ name = "Allan Cao", email = "allan@allancao.ca" }]
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 keywords = ["lol-esports", "riot-games-api"]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "sqlalchemy>=2.0.41,<3.0.0",
     "tqdm>=4.67.1,<5.0.0",
     "psycopg[binary]>=3.2.9,<4.0.0",
-    "requests>=2.32.4,<3.0.0",
+    "httpx2>=2.14.0",
 ]
 
 [project.urls]

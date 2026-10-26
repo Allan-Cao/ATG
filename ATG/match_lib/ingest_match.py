@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from httpx2 import Client
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session as _Session
 from tqdm import tqdm
@@ -8,7 +9,7 @@ from ..models import Player, Game, Participant, Account, TeamDto, ParticipantSta
 from ..utils import SEASON_START, snake_to_camel
 
 
-def update_account_names(session: _Session, API_KEY: str, days: int = 7):
+def update_account_names(session: _Session, client: Client, days: int = 7):
     """Updates player account names/taglines"""
     update_delta = datetime.now() - timedelta(days=days)
     accounts_to_update = list(
@@ -26,7 +27,7 @@ def update_account_names(session: _Session, API_KEY: str, days: int = 7):
         print("All accounts are up to date!")
         return
     for account in tqdm(accounts_to_update):
-        account_details = get_account_by_puuid(account.puuid, API_KEY)
+        account_details = get_account_by_puuid(client, account.puuid)
         account_details = account_details.json()
         account.name = account_details["gameName"]
         account.tagline = account_details["tagLine"]
@@ -40,8 +41,8 @@ def update_account_names(session: _Session, API_KEY: str, days: int = 7):
 
 def insert_match_history(
     session: _Session,
+    client: Client,
     player: Player,
-    API_KEY: str,
     start_time: int = SEASON_START,
     start_latest: bool = True,
     queue_id: int = 420,
@@ -67,9 +68,9 @@ def insert_match_history(
             else:
                 start_time = int(latest_game_timestamp.timestamp())
         match_ids = get_match_history(
+            client,
             account.puuid,
             account.region,
-            API_KEY,
             startTime=start_time,
             queue=queue_id,
         )
@@ -81,7 +82,7 @@ def insert_match_history(
 
         for match_id in tqdm(new_match_ids):
             try:
-                game_data = get_match_by_id(match_id, API_KEY).json()["info"]
+                game_data = get_match_by_id(client, match_id).json()["info"]
                 process_match(session, match_id, game_data)
                 existing_ids.add(match_id)
             except Exception as e:
