@@ -10,7 +10,7 @@ ATG - All The Games
    :target: https://pypi.org/project/ATG-lib/
    :alt: Python Versions
 
-.. image:: https://img.shields.io/github/license/Allan-Cao/ATG
+.. image:: https://img.shields.io/pypi/l/ATG-lib
    :target: https://github.com/Allan-Cao/ATG/blob/main/LICENSE
    :alt: License
 
