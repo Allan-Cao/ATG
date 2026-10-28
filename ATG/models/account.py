@@ -1,5 +1,4 @@
 from sqlalchemy import (
-    BigInteger,
     Integer,
     ForeignKey,
     DateTime,
@@ -25,8 +24,6 @@ class Account(Base):
     tagline: Mapped[str] = mapped_column(Text)  # riotIdTagLine
     # Exceptions to the normal Riot API regions include TOURNAMENT (for TR accounts) and RIOT_LOL (for Riot Esports API)
     region: Mapped[str] = mapped_column(Text, nullable=False)
-    # Last time / newest game was added to the database (used for match history ingestion)
-    latest_game: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     updated: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
     )
