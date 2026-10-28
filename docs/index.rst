@@ -11,8 +11,7 @@
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/pyversions/ATG-lib
-    :target: https://pypi.org/project/ATG-lib/
-    :alt: Python Versions
+    :alt: PyPI Python Version
 
 .. image:: https://img.shields.io/pypi/l/ATG-lib
     :target: https://github.com/Allan-Cao/ATG/blob/main/LICENSE
