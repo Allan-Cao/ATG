@@ -1,4 +1,13 @@
-from sqlalchemy import BigInteger, Integer, ForeignKey, DateTime, Boolean, Text, func
+from sqlalchemy import (
+    BigInteger,
+    Integer,
+    ForeignKey,
+    DateTime,
+    Boolean,
+    Text,
+    func,
+    Index,
+)
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime
@@ -37,6 +46,8 @@ class Account(Base):
         return cls.region.in_(REGIONS)
 
     player: Mapped["Player"] = relationship("Player", back_populates="accounts")
+
+    __table_args__ = (Index("idx_accounts_player_id", "player_id"),)
 
     def __repr__(self) -> str:
         return f"{self.id} - {self.name}#{self.tagline}, region={self.region}, last_update={self.updated}"
