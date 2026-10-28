@@ -14,8 +14,6 @@
 - Reduce the number of nullable columns where possible. This is especially a problem on
   the game table
 - Introduce enums where appropriate
-- Remove or update the ``player_team_association`` table. I currently don't use it but
-  it's definitely useful and should be revisited in the future.
 
 ***********
  Completed
@@ -27,3 +25,5 @@
 - Add the ability to store draft / other available esports game information
 - Open source GRID API code and GRID insertion scripts
 - Transition to HTTPX > requests
+- Add start/end dates to ``player_team_associations`` so team rosters can be tracked
+  over time
