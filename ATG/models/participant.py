@@ -30,8 +30,12 @@ class Participant(Base):
     game_id: Mapped[str] = mapped_column(Text, ForeignKey("games.id"))
 
     game: Mapped["Game"] = relationship("Game", back_populates="participants")
-    stats: Mapped["ParticipantStat"] = relationship(
-        "ParticipantStat", back_populates="participant"
+    # End-of-game summary only; per-frame rows (game_time set) should be queried directly
+    stats: Mapped["ParticipantStat | None"] = relationship(
+        "ParticipantStat",
+        primaryjoin="and_(Participant.id == ParticipantStat.participant_id, ParticipantStat.game_time.is_(None))",
+        uselist=False,
+        viewonly=True,
     )
 
     team: Mapped["TeamDto"] = relationship(

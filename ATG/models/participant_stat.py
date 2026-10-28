@@ -9,6 +9,7 @@ from sqlalchemy import (
     case,
     type_coerce,
     select,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -139,9 +140,7 @@ class ParticipantStat(Base):
     game_time: Mapped[int | None] = mapped_column(Integer, nullable=True)
     participant_id: Mapped[int] = mapped_column(Integer, ForeignKey("participants.id"))
 
-    participant: Mapped["Participant"] = relationship(
-        "Participant", back_populates="stats"
-    )
+    participant: Mapped["Participant"] = relationship("Participant")
 
     @classmethod
     def _game_duration_minutes(cls):
@@ -193,6 +192,12 @@ class ParticipantStat(Base):
         Index("idx_participant_stats_participant_time", "participant_id", "game_time"),
         Index("idx_participant_stats_participant_id", "participant_id"),
         Index("idx_participant_stats_game_time", "game_time"),
+        Index(
+            "uq_participant_stats_summary",
+            "participant_id",
+            unique=True,
+            postgresql_where=text("game_time IS NULL"),
+        ),
     )
 
     # Debug
