@@ -10,6 +10,7 @@ from sqlalchemy import (
     Boolean,
     case,
     literal,
+    Computed,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship, MappedColumn
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -64,6 +65,14 @@ class Game(Base):
     # Equivalent to matchId in the MatchV5 API (e.x. NA1_12345)
     id: Mapped[str] = mapped_column(Text, primary_key=True)
 
+    patch: Mapped[str | None] = mapped_column(
+        Text,
+        Computed(
+            "split_part(game_version, '.', 1) || '.' || split_part(game_version, '.', 2)",
+            persisted=True,
+        ),
+    )
+
     game_ended_in_early_surrender: Mapped[bool | None] = mapped_column(Boolean)
     game_ended_in_surrender: Mapped[bool | None] = mapped_column(Boolean)
 
@@ -87,23 +96,6 @@ class Game(Base):
     )
     # TeamDto
     teams: Mapped[list["TeamDto"]] = relationship()
-
-    @hybrid_property
-    def patch(self):  # type: ignore
-        version_split = self.game_version.split(".")
-        return (
-            f"{version_split[0]}.{version_split[1]}"
-            if len(version_split) >= 2
-            else None
-        )
-
-    @patch.expression
-    def patch(cls):
-        return func.concat(
-            func.split_part(cls.game_version, ".", 1),
-            ".",
-            func.split_part(cls.game_version, ".", 2),
-        )
 
     @hybrid_property
     def solo_queue(self) -> bool:  # type: ignore
@@ -152,4 +144,5 @@ class Game(Base):
         Index("idx_games_series_id", "series_id"),
         Index("idx_games_game_version", "game_version"),
         Index("idx_games_type_version", "game_type", "game_version"),
+        Index("idx_games_patch_queue_id", "patch", "queue_id"),
     )
