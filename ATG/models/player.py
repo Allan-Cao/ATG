@@ -23,6 +23,9 @@ class Player(Base):
     )
 
     accounts: Mapped[list["Account"]] = relationship("Account", back_populates="player")
+    team_associations: Mapped[list["PlayerTeamAssociation"]] = relationship(
+        "PlayerTeamAssociation", back_populates="player"
+    )
 
     def __repr__(self) -> str:
         if self.disambiguation is None:
