@@ -35,6 +35,7 @@ dev = [
     "ruff>=0.17.2",
 ]
 docs = [
+    "docstrfmt>=2.2.1",
     "sphinx>=9.0.4",
     "sphinx-autobuild>=2025.8.25",
     "sphinx-copybutton>=0.5.2",
