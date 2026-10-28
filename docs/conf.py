@@ -20,7 +20,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
 ]
-extensions = ['sphinx.ext.autodoc', 'sphinx_copybutton', 'sphinx_rtd_theme']
+extensions = ["sphinx.ext.autodoc", "sphinx_copybutton", "sphinx_rtd_theme"]
 language = "en"
 master_doc = "index"
 pygments_style = "sphinx"

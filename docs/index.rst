@@ -14,198 +14,27 @@ ATG - All The Games
    :target: https://github.com/Allan-Cao/ATG/blob/main/LICENSE
    :alt: License
 
-Opinionated but flexible library of database models and scripts and APIs to
-store solo queue / competitive games, player, team and game data tailored for
-LoL Esports.
+**ATG makes it easy to collect, store League of Legends data.**
+
+ATG is an opinionated but flexible library that handles the complexities of the Riot API
+and the data it returns. It provides region-aware functions and rate limiters for the Riot API,
+PostgreSQL database models to store solo queue and competitive games, players and teams,
+and functions to ingest and manage that data.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :glob:
 
+   usage/installation
+   usage/examples/index
    api
 
-Features
-========
+.. toctree::
+   :maxdepth: 1
 
-- Functions to access Riot & GRID APIs with smart region handling
-- SQLAlchemy database models compatible with both solo queue & esports games
-- Database models to store riot game event JSONL files
-- Ability to store complete Match-V5 JSON objects
-- Scripts to insert/manage solo queue accounts & store new solo queue games
+   development/index
 
-1.X Release Notes
-=================
-
-As of version 1.X, PostgreSQL is the **required** database backend due to the
-use of JSONB columns which are declared using the
-``sqlalchemy.dialects.postgresql.JSONB`` datatype.
-
-I have decided to bump the major version since this library is mature enough
-for my production needs *however* expect extensive schema changes as I look to
-fully mature my database models.
-
-Although naming initially reflects the match-v5 API's choices and the
-terminology used by GRID esports, I've had to make some changes.
-
-Here is are the major differences / exceptions that should be noted.
-
-.. list-table::
-   :header-rows: 1
-   :widths: 15 35 50
-
-   * - Key used
-     - Meaning
-     - Examples
-   * - ``Series``
-     - A collection of related games
-     - A series has many games
-   * - ``source_data``
-     - Raw/unprocessed/additional data
-     - Specifically in ``ParticipantStats`` we store the unprocessed
-       ``match_v5`` columns here
-   * - ``X_id``
-     - table_id; Foreign key name
-     - ``champion_id``, ``game_id``
-   * - ``team_id``
-     - Blue / red sides
-     - 100 - Blue, 200 - Red
-   * - ``participant_id``
-     - The "#" of the participant
-     - From 1 - 10 representing blue top -> red bottom most of the time.
-
-Todo
-====
-
-Completed
----------
-
-- Remove the usage of ``ratelimit`` in favor of something that actually does
-  stable rate limiting
-- Properly handle API error codes
-- Add the ability to store draft / other available esports game information
-- Open source GRID API code and GRID insertion scripts
-- Transition to HTTPX > requests
-
-Planned
--------
-
-- Handle database sessions better than passing session objects around. I kind
-  of like the current functional nature of the API
-- Normalize database objects. Specifically the series/tournament-game
-  relationship
-- Reduce the number of nullable columns where possible. This is especially a
-  problem on the game table
-- Introduce enums where appropriate
-- Remove or update the ``player_team_association`` table. I currently don't use
-  it but it's definitely useful and should be revisited in the future.
-
-Setup & Example Usage
-=====================
-
-It is recommended to use a `virtual environment
-<https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/>`_
-when directly running this library's scripts.
-
-Setup dependencies
-
-.. code-block:: bash
-
-   uv sync
-
-Edit the ``.env`` file with your Riot API key and database connection string.
-The `psycopg3 database driver
-<https://www.psycopg.org/psycopg3/docs/basic/install.html>`_ is installed if
-this code is installed as a library and is recommended.
-
-.. code-block:: bash
-
-   uv run main.py
-
-Local database
---------------
-
-A ``docker-compose.yml`` is provided to run the PostgreSQL backend locally,
-reading its credentials from the same ``.env``.
-
-.. code-block:: bash
-
-   docker compose up -d
-
-.. note::
-
-   ``alembic upgrade head`` cannot build a database from scratch, as the
-   migration history begins against an already populated database.
-   ``get_session_factory`` creates the schema on first connection; follow it
-   with ``alembic stamp head`` to track migrations.
-
-Example usage
--------------
-
-Linking a pro player by name to a solo queue account:
-
-.. code-block:: python
-
-   import os
-   from sqlalchemy import select
-
-   from ATG.database import get_session_factory
-   from ATG.api import riot_client, get_account_by_riot_id
-   from ATG.models import Player, Account
-
-   client = riot_client(os.environ["RIOT_API"])
-   Session = get_session_factory(os.environ["PROD_DB"])
-
-
-   def link_pro(pro_name, soloq):
-       with Session() as session:
-           try:
-               player = session.execute(
-                   select(Player).where(Player.name == pro_name)
-               ).scalar_one()
-           except:
-               print(f"Unable to find associated player for {pro_name}")
-               return
-           name, tagline = soloq.split("#")
-           details = get_account_by_riot_id(client, name, tagline).json()
-           new_acc = Account(
-               puuid=details["puuid"],
-               name=details["gameName"],
-               tagline=details["tagLine"],
-               region="NA1",
-               player_id=player.id,
-           )
-           session.add(new_acc)
-           try:
-               session.commit()
-               print(f"Linked {pro_name} with {name}#{tagline}")
-           except:
-               session.rollback()
-               print(f"Account {name}#{tagline} already linked")
-
-
-   link_pro("Tactical", "Tactical0#NA1")
-
-Schema changes - Alembic commands
-=================================
-
-In the case of schema changes, Alembic allows us to automatically generate a
-script to apply the changes to the database. When a commit will cause a schema
-change, an alembic script should be attached to the commit.
-
-.. code-block:: bash
-
-   alembic revision --autogenerate -m "changes"
-   alembic upgrade head
-
-uv
-==
-
-Commands to publish updates on PyPi
-
-.. code-block:: bash
-
-   uv build
-   uv publish
 
 Legal
 =====
