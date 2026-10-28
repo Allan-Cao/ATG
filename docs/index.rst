@@ -2,6 +2,10 @@
 ATG - All The Games
 ===================
 
+.. image:: https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white
+   :target: https://github.com/Allan-Cao/ATG
+   :alt: ATG GitHub
+   
 .. image:: https://img.shields.io/pypi/v/ATG-lib?label=latest
    :target: https://pypi.org/project/ATG-lib/
    :alt: Latest Version
