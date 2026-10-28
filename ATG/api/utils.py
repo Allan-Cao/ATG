@@ -1,21 +1,56 @@
-from typing import Dict, Literal
-from enum import StrEnum
+from datetime import datetime
+from importlib.metadata import PackageNotFoundError, version
+from typing import Literal, get_args
+from urllib.parse import quote
 from httpx2 import Client
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-    "Accept-Language": "en-US,en-CA;q=0.9,en;q=0.8,ru-RU;q=0.7,ru;q=0.6,ko-KR;q=0.5,ko;q=0.4",
-    "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-}
+try:
+    _VERSION = version("ATG-lib")
+except PackageNotFoundError:
+    _VERSION = "unknown"
+
+headers = {"User-Agent": f"ATG-lib/{_VERSION}"}
+
+Region = Literal[
+    "NA1",
+    "BR1",
+    "LA1",
+    "LA2",
+    "KR",
+    "JP1",
+    "ME1",
+    "EUN1",
+    "EUW1",
+    "TR1",
+    "RU",
+    "OC1",
+    "SG2",
+    "TW2",
+    "VN2",
+]
+Queue = Literal["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"]
+Tier = Literal["DIAMOND", "EMERALD", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON"]
+Division = Literal["I", "II", "III", "IV"]
+MatchType = Literal["ranked", "normal", "tourney", "tutorial"]
+ChallengeLevel = Literal["MASTER", "GRANDMASTER", "CHALLENGER"]
+
+#: Every platform accepted as ``region``.
+REGIONS: tuple[Region, ...] = get_args(Region)
+#: Every ranked queue.
+QUEUES: tuple[Queue, ...] = get_args(Queue)
+#: Every ranked tier served by :func:`ATG.api.get_league_entries`.
+TIERS: tuple[Tier, ...] = get_args(Tier)
+#: Every division within a tier.
+DIVISIONS: tuple[Division, ...] = get_args(Division)
 
 # The AMERICAS routing value serves NA, BR, LAN and LAS. The ASIA routing value serves KR and JP. The EUROPE routing value serves EUNE, EUW, ME1, TR and RU. The SEA routing value serves OCE, SG2, TW2 and VN2.
-PLATFORM_ROUTING: Dict[str, str] = {
+PLATFORM_ROUTING: dict[Region, str] = {
     "NA1": "americas",
     "BR1": "americas",
     "LA1": "americas",
     "LA2": "americas",
     "KR": "asia",
-    "JP": "asia",
+    "JP1": "asia",
     "ME1": "europe",
     "EUN1": "europe",
     "EUW1": "europe",
@@ -27,42 +62,83 @@ PLATFORM_ROUTING: Dict[str, str] = {
     "VN2": "sea",
 }
 
-RoutingLiteral = Literal["americas", "asia", "europe", "sea"]
-RegionLiteral = Literal[
-    "NA1",
-    "BR1",
-    "LA1",
-    "LA2",
-    "KR",
-    "JP",
-    "ME1",
-    "EUN1",
-    "EUW1",
-    "TR1",
-    "RU",
-    "OC1",
-    "SG2",
-    "TW2",
-    "VN2",
-]
-QueueLiteral = Literal["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"]
-DivisionLiteral = Literal["I", "II", "III", "IV"]
-TierLiteral = Literal[
-    "DIAMOND", "EMERALD", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON"
-]
+# account-v1 has no SEA route, but any account can be queried from any route, so SEA platforms use the nearest one.
+ACCOUNT_ROUTING: dict[str, str] = {
+    "americas": "americas",
+    "asia": "asia",
+    "europe": "europe",
+    "sea": "asia",
+}
 
-REGIONS = StrEnum("Regions", [(_, _) for _ in PLATFORM_ROUTING.keys()])
-QUEUES = StrEnum(
-    "Queues", [(_, _) for _ in ["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"]]
-)
-DIVISIONS = StrEnum("Divisions", [(_, _) for _ in ["I", "II", "III", "IV"]])
-TIERS = StrEnum(
-    "Tiers",
-    [
-        (_, _)
-        for _ in ["DIAMOND", "EMERALD", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON"]
-    ],
-)
+
+def _validate_region(region: str) -> Region:
+    if region.upper() not in REGIONS:
+        raise ValueError(f"Unknown region {region}, expected one of {REGIONS}")
+    return region.upper()
+
+
+def platform_url(region: str) -> str:
+    """Build the base URL of a platform route, such as ``NA1``.
+
+    :param region: Platform routing value, such as ``"NA1"``. Case-insensitive.
+    :type region: str
+    :returns: The base URL, without a trailing slash.
+    :rtype: str
+    :raises ValueError: If ``region`` is not a known platform.
+    """
+    return f"https://{_validate_region(region).lower()}.api.riotgames.com"
+
+
+def regional_url(region: str) -> str:
+    """Build the base URL of the regional route serving a platform.
+
+    :param region: Platform routing value, such as ``"NA1"``. Case-insensitive.
+    :type region: str
+    :returns: The base URL, without a trailing slash.
+    :rtype: str
+    :raises ValueError: If ``region`` is not a known platform.
+    """
+    return f"https://{PLATFORM_ROUTING[_validate_region(region)]}.api.riotgames.com"
+
+
+def account_url(region: str) -> str:
+    """Build the base URL of the account-v1 route nearest to a platform.
+
+    :param region: Platform routing value, such as ``"NA1"``. Case-insensitive.
+    :type region: str
+    :returns: The base URL, without a trailing slash.
+    :rtype: str
+    :raises ValueError: If ``region`` is not a known platform.
+    """
+    routing = ACCOUNT_ROUTING[PLATFORM_ROUTING[_validate_region(region)]]
+    return f"https://{routing}.api.riotgames.com"
+
+
+def path_segment(value: str) -> str:
+    """Percent-encode a value for use as one URL path segment.
+
+    Riot IDs may contain spaces and non-ASCII characters, such as Korean or
+    Cyrillic names, which must be encoded exactly once.
+
+    :param value: The raw value.
+    :type value: str
+    :returns: The encoded value.
+    :rtype: str
+    """
+    return quote(value, safe="")
+
+
+def epoch_seconds(value: datetime | int | None) -> int | None:
+    """Convert a time to epoch seconds, as Riot expects in query parameters.
+
+    :param value: A datetime, epoch seconds, or ``None``.
+    :type value: datetime.datetime | int | None
+    :returns: Epoch seconds, or ``None`` if ``value`` is ``None``.
+    :rtype: int | None
+    """
+    if isinstance(value, datetime):
+        return int(value.timestamp())
+    return value
 
 
 def parse_match_id(match_id: str) -> tuple[str, str]:

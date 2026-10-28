@@ -3,7 +3,7 @@ from httpx2 import Client
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session as _Session
 from tqdm import tqdm
-from ..api import get_match_history, get_match_by_id
+from ..api import get_all_match_ids_by_puuid, get_match_by_id
 from ..api.account_v1 import get_account_by_puuid
 from ..models import Player, Game, Participant, Account, TeamDto, ParticipantStat
 from ..utils import SEASON_START, snake_to_camel
@@ -103,11 +103,11 @@ def insert_match_history(
                 start_time = SEASON_START
             else:
                 start_time = int(latest_game_timestamp.timestamp())
-        match_ids = get_match_history(
+        match_ids = get_all_match_ids_by_puuid(
             client,
             account.puuid,
-            account.region,
-            startTime=start_time,
+            region=account.region,
+            start_time=start_time,
             queue=queue_id,
         )
         new_match_ids = set(match_ids) - existing_ids

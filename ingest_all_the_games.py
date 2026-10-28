@@ -10,7 +10,7 @@ from ATG.api import (
     get_challengers,
     get_masters,
     get_grandmasters,
-    get_match_history,
+    get_all_match_ids_by_puuid,
     get_match_by_id,
 )
 from ATG.utils import SEASON_START
@@ -27,11 +27,9 @@ Session = get_session_factory(DB_CONNECTION)
 with riot_client(RIOT_API) as client, Session() as session:
     region = sys.argv[1]
     players = []
-    players.extend(get_challengers(client, region, "RANKED_SOLO_5x5").json()["entries"])
-    players.extend(
-        get_grandmasters(client, region, "RANKED_SOLO_5x5").json()["entries"]
-    )
-    players.extend(get_masters(client, region, "RANKED_SOLO_5x5").json()["entries"])
+    players.extend(get_challengers(client, region=region).json()["entries"])
+    players.extend(get_grandmasters(client, region=region).json()["entries"])
+    players.extend(get_masters(client, region=region).json()["entries"])
 
     import random
 
@@ -39,11 +37,11 @@ with riot_client(RIOT_API) as client, Session() as session:
 
     existing_ids = set(session.scalars(select(Game.id)).all())
     for player in players:
-        match_ids = get_match_history(
+        match_ids = get_all_match_ids_by_puuid(
             client,
             player["puuid"],
-            region,
-            startTime=1745888400,
+            region=region,
+            start_time=1745888400,
             queue=420,
         )
         new_match_ids = set(match_ids) - existing_ids
