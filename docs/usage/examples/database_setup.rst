@@ -17,21 +17,51 @@ scripts.
 models make extensive use of ``JSONB`` columns to store structured esports data whose
 schema changes over time.
 
-****************
- Local database
-****************
+***************************
+ Setting up a new database
+***************************
 
-The recommended way to run PostgreSQL locally is with `Docker
-<https://docs.docker.com/engine/install/>`_. A ``docker-compose.yml`` is provided to run
-the PostgreSQL backend, reading its credentials from the same ``.env`` file.
+1. Install ATG in your project:
 
-.. code-block:: bash
+   .. code-block:: bash
 
-    docker compose up -d
+       pip install -U ATG-lib
 
-.. note::
+2. Create a ``.env`` file in your project, based on the project's `EXAMPLE.env
+   <https://github.com/Allan-Cao/ATG/blob/main/EXAMPLE.env>`_. The ``POSTGRES_*`` values
+   set the database credentials, and ``DB_CONNECTION`` is built from them.
 
-    ``alembic upgrade head`` cannot build a database from scratch, as the migration
-    history begins against an already populated database. ``get_session_factory``
-    creates the schema on first connection; follow it with ``alembic stamp head`` to
-    track migrations.
+   .. literalinclude:: ../../../EXAMPLE.env
+       :caption: .env
+       :language: bash
+
+3. Start PostgreSQL. The recommended way to run it locally is with `Docker
+   <https://docs.docker.com/engine/install/>`_. Save the project's `docker-compose.yml
+   <https://github.com/Allan-Cao/ATG/blob/main/docker-compose.yml>`_ next to your
+   ``.env``, which it reads its credentials from, and start it:
+
+   .. literalinclude:: ../../../docker-compose.yml
+       :caption: docker-compose.yml
+       :language: yaml
+
+   .. code-block:: bash
+
+       docker compose up -d
+
+   To use an existing PostgreSQL server instead, point ``DB_CONNECTION`` at it.
+
+4. Create the tables by running :download:`create_tables.py
+   <../../_static/create_tables.py>` from the directory containing your ``.env``:
+
+   .. literalinclude:: ../../_static/create_tables.py
+       :caption: create_tables.py
+       :language: python
+
+   .. code-block:: bash
+
+       python create_tables.py
+
+.. warning::
+
+    ATG does not ship its migrations yet. When you upgrade ATG, you must apply any
+    schema changes to your database yourself.
